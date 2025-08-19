@@ -1,4 +1,4 @@
-# RuoYi-Web
+# 太阳石矿山大模型 Solstone-Web
 
 [English](./README_EN.md) | 简体中文
 
@@ -119,18 +119,31 @@ ruoyi-web/
 └── package.json
 ```
 
-## 🤝 贡献
+## 🤝 代码提交
 
-欢迎提交 Issue 和 Pull Request 来改进项目。
+代码上传到gitlab步骤。
 
-## 📄 许可证
+```
+git status
+git add .
+git commit -m "修复 LogoSvg 显示错误，使用 img 标签"
+git push origin main
+```
 
-本项目基于 MIT 许可证开源。
+## 📄 提交类型
+
+| 类型               | 描述                                           |
+| ------------------ | ---------------------------------------------- |
+| **feat**     | 新功能（feature）                              |
+| **fix**      | 修复 bug                                       |
+| **docs**     | 文档更新                                       |
+| **style**    | 代码格式修改（空格、缩进、分号等，不影响功能） |
+| **refactor** | 代码重构（既不是新功能也不是 bug 修复）        |
+| **perf**     | 性能优化                                       |
+| **test**     | 测试相关（新增、修改、删除测试）               |
+| **chore**    | 构建过程或辅助工具变动（如更新依赖、脚本修改） |
+| **revert**   | 回滚某个提交                                   |
 
 ## 👨‍💻 作者
 
-- **ageer** - [ageerle@163.com](mailto:ageerle@163.com)
-
----
-
-⭐ 如果这个项目对你有帮助，请给它一个星标！
+- **煤炭科学研究总院有限公司-矿山人工智能研究院**
