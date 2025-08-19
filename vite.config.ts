@@ -3,10 +3,12 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import svgLoader from 'vite-svg-loader'
 
-function setupPlugins(env) {
+function setupPlugins(env: Record<string, string>) {
   return [
     vue(),
+    svgLoader({ defaultImport: 'component' }),
     env.VITE_GLOB_APP_PWA === 'true' && VitePWA({
       injectRegister: 'auto',
       manifest: {

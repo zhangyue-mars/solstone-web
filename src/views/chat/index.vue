@@ -382,7 +382,7 @@ const ychat = computed(() => {
               <div v-if="local !== 'draw'">
                 <div class="help">
                   <div class="ai-icon">
-                    <IconSvg icon="chatGPT" :width="isMobile ? '32px' : '64px'" :height="isMobile ? '32px' : '64px'">
+                    <IconSvg icon="logoSolstone" :width="isMobile ? '32px' : '64px'" :height="isMobile ? '32px' : '64px'">
                     </IconSvg>
                   </div>
 

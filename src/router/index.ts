@@ -161,6 +161,18 @@ const routes: RouteRecordRaw[] = [
   },
   
   {
+    path: '/user-agreement',
+    name: 'UserAgreement',
+    component: () => import('@/views/mj/components/UserAgreement.vue'),
+  },
+  
+  {
+    path: '/privacy-policy',
+    name: 'PrivacyPolicy',
+    component: () => import('@/views/mj/components/PrivacyPolicy.vue'),
+  },
+  
+  {
     path: '/500',
     name: '500',
     component: () => import('@/views/exception/500/index.vue'),

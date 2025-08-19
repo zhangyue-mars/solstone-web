@@ -15,17 +15,19 @@ import to from "await-to-js";
 import {
   Settings as settings,
   Storefront as storefront,
-  LogOut as out
+  LogOut as out,
+  DocumentText as document
 } from '@vicons/ionicons5'
 
-
 const Setting = defineAsyncComponent(() => import('@/components/common/Setting/index.vue'))
+const UserAgreementModal = defineAsyncComponent(() => import('./components/UserAgreementModal.vue'))
 
 const st = ref({ 'show': false, showImg: false, menu: [], active: 'chat' })
 const router1 = useRouter()
 const userInfo = ref<UserInfo>(defaultSetting().userInfo)
 
 const show = ref(false)
+const showUserAgreementModal = ref(false)
 const urouter = useRouter() //
 const isLogin = computed(() => {
   return localStorage.getItem('TOKEN')
@@ -90,6 +92,11 @@ const menuOptions = ref([
     icon: renderIcon(settings)
   },
   {
+    label: '服务协议',
+    key: 'userAgreement',
+    icon: renderIcon(document)
+  },
+  {
     label: '立即充值',
     key: 'buy',
     icon: renderIcon(storefront)
@@ -104,6 +111,8 @@ const menuOptions = ref([
 const handleSelect = (key: string) => {
   if (key === 'accountSettings') {
     st.value.show = true
+  } else if (key === 'userAgreement') {
+    showUserAgreementModal.value = true
   } else if (key === 'logout') {
     handleReset()
   } else if (key === 'buy') {
@@ -200,7 +209,8 @@ const handleSelect = (key: string) => {
           <template #trigger>
             <n-avatar v-show="isLogin" size="large" round :src="userInfo.avatar" />
           </template>
-          <n-menu :options="menuOptions" @select="handleSelect" />
+          <!-- <n-menu :options="menuOptions" @select="handleSelect" /> -->
+          <n-menu :options="menuOptions" @update:value="handleSelect" />
         </n-popover>
 
         <div v-show="!isLogin" class="user-bottom" @click="longin">
@@ -218,4 +228,6 @@ const handleSelect = (key: string) => {
   <Setting v-if="st.show" v-model:visible="st.show" />
   <PromptStore v-model:visible="show"></PromptStore>
   
+  <!-- 用户协议对话框 -->
+  <UserAgreementModal v-model:visible="showUserAgreementModal" />
 </template>
