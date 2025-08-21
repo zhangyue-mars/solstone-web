@@ -181,9 +181,9 @@ const brandSectionStyle = computed(() => {
         <!-- 左侧品牌区域 -->
         <div class="brand-section" :style="brandSectionStyle">
           <div class="brand-content">
-            <h1 class="brand-title">AI知识库系统</h1>
+            <h1 class="brand-title">太阳石矿山大模型</h1>
             <p class="brand-description">
-              企业级智能知识管理平台，助力数字化转型
+              引领数字化矿山新时代，提升生产效率与安全水平
             </p>
           </div>
         </div>
