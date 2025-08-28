@@ -1,12 +1,12 @@
 <script setup lang="ts">
-//import {  NLayoutSider } from 'naive-ui'; 
+//import {  NLayoutSider } from 'naive-ui';
 import aiDrawInput from './aiDrawInput.vue';
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { NDrawerContent,NDrawer} from "naive-ui";
 import { computed,ref  } from "vue";
 //import { SvgIcon } from '@/components/common';
 import { homeStore } from '@/store';
- 
+
 //import { homeStore } from '@/store';
 const { isMobile } = useBasicLayout()
 
@@ -17,7 +17,7 @@ const handleUpdateCollapsed = (value: boolean) => {
 }
 const $emit=defineEmits(['drawSent','close']);
 const isLoading= computed(() => {
-  return pp.buttonDisabled  
+  return pp.buttonDisabled
 })
 function drawSent(e:any){
   st.value.show=false;
@@ -28,10 +28,10 @@ function drawSent(e:any){
 //   act=='newtask' && (st.value.show=true);
 //   act=='same2' && (st.value.show=true);
 // });
- 
+
 </script>
 <template>
-<div v-if="isMobile" > 
+<div v-if="isMobile" >
     <!-- <div class="fixed right-[30px] bottom-[70px] z-10">
     <n-button  type="warning" circle size="large" @click="st.show=true">
       <template #icon>
@@ -52,5 +52,5 @@ function drawSent(e:any){
    <div class="h-full w-full"> <aiDrawInput @draw-sent="drawSent" :button-disabled="isLoading"/></div>
   </section>
 
-  
+
 </template>
