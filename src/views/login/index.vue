@@ -44,7 +44,7 @@ function validateForm() {
 
   // 用户名验证
   if (!loginForm.username) {
-    formErrors.username = t('login.usernameRequired');
+    formErrors.username = t('用户名不能为空');
     isValid = false;
   } else {
     formErrors.username = '';
@@ -52,7 +52,7 @@ function validateForm() {
 
   // 密码验证
   if (!loginForm.password) {
-    formErrors.password = t('login.passwordRequired');
+    formErrors.password = t('密码不能为空');
     isValid = false;
   } else {
     formErrors.password = '';
@@ -114,7 +114,7 @@ const brandSectionStyle = computed(() => {
 
         <!-- 右侧登录表单 -->
         <div class="form-wrapper">
-  
+
           <div class="login-methods">
             <div class="active-method">账号密码登录</div>
           </div>
@@ -168,7 +168,7 @@ const brandSectionStyle = computed(() => {
                 {{ $t("login.login") }}
               </NButton>
             </div>
-            
+
             <!-- 注册提示 -->
             <div class="register-prompt">
               还没有账号？

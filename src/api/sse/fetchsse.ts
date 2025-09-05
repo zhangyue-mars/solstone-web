@@ -10,7 +10,7 @@ export class ChatGPTError2 extends types.ChatGPTError{
 export async function fetchSSE(
   url: string,
   options: Parameters<typeof fetch>[1] & {
-    onMessage: (data: string) => void
+    onMessage: (data: string, event?: string) => void
     onError?: (error: any) => void
   },
   fetch: types.FetchFn = globalFetch
@@ -42,6 +42,8 @@ export async function fetchSSE(
 
   const parser = createParser((event) => {
     if (event.type === 'event') {
+      onMessage(event.data, event.event)
+    } else {
       onMessage(event.data)
     }
   })

@@ -72,8 +72,8 @@ const voiceList = computed(() => {
 const modellist = computed(() => { //
 	let rz = [];
 	// 添加auto选项作为第一个选项
-	rz.push({ label: '自动选择', value: 'auto' });
-	
+	// rz.push({ label: '自动选择', value: 'auto' });
+
 	for (let o of config.value) {
 		rz.push({ label: o.modelDescribe, value: o.modelName })
 	}
@@ -168,6 +168,7 @@ const saveChat = (type: string) => {
 	homeStore.setMyData({ act: 'saveChat' });
 	if (type != 'hide') ms.success(t('common.saveSuccess'));
 	emit('close');
+	emit('update:modelList');
 }
 
 // 添加一个空选项

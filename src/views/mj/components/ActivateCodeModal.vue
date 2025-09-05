@@ -85,7 +85,7 @@
 		<template #footer>
 			<div class="flex items-center justify-between">
 				<div class="text-gray-600 text-sm">
-					账号余额：{{ userBalanceDisplay }}
+					账号剩余Tokens：{{ userBalanceDisplay }}
 				</div>
 				<div class="flex gap-2">
 					<n-button @click="handleCancel">取消</n-button>
@@ -173,7 +173,7 @@ const handleCancel = () => {
 
 const userBalanceDisplay = computed(() => {
 	if (userBalance.value === null || userBalance.value === undefined) return "—";
-	return `${userBalance.value}元`;
+	return `${userBalance.value} 百万`;
 });
 
 const fetchUserBalance = async () => {

@@ -94,7 +94,7 @@ watch(()=>homeStore.myData.act, async (n)=>{
             // 立即保存到聊天设置中
             chatSet.save({ hasAttachment: true });
             mlog('🐞 语音识别，设置hasAttachment为true');
-            
+
             try{
                 let bb= await file2blob( dd.file );
                 // bb.blob
@@ -167,18 +167,18 @@ watch(()=>homeStore.myData.act, async (n)=>{
         // let message= [ {  "role": "system", "content": getSystemMessage(  +uuid2) },
         //         ...historyMesg ];
         let message= [...historyMesg ];
-                
+
         if( dd.fileBase64 && dd.fileBase64.length>0 ){
-            if(isCanBase64Model(model)){ 
+            if(isCanBase64Model(model)){
                 let obj={
-                        "role": "user",
+                        "role": "user" as const,
                        "content": [] as any
                 }
                 obj.content.push({ "type": "text",      "text": dd.prompt  });
                 dd.fileBase64.forEach((f:any)=>{
                     obj.content.push({ "type": "image_url",  "image_url": {url:f }   });
                 });
-                message.push(obj); 
+                message.push(obj);
             }else{
                 let cc= dd.prompt;
                 //附件需要时远程的图片链接 或者文件 链接
@@ -189,7 +189,9 @@ watch(()=>homeStore.myData.act, async (n)=>{
         }else{
             message.push({  "role": "user",  "content": dd.prompt })
         }
-        let opt={};
+        let opt: any = {
+            enableThinking: dd.enableThinking ?? false // 从dd中获取enableThinking参数
+        };
         if( n=='gpt.whisper'){
             opt= {
                 file: dd.file
@@ -270,20 +272,20 @@ const submit= (model:string, message:any[],opt?:any)=>{
     mlog('提交Model', model  );
     const chatSet = new chatSetting(   +st.value.uuid  );
     const nGptStore =   chatSet.getGptConfig()  ;
-    
+
     // 保存新的配置参数
     chatSet.save({
         hasAttachment: nGptStore.hasAttachment,
         autoSelectModel: nGptStore.autoSelectModel
     });
-    
+
     // 添加调试日志
     mlog('🐞 submit函数中的参数:', {
         hasAttachment: nGptStore.hasAttachment,
         autoSelectModel: nGptStore.autoSelectModel,
         uuid: st.value.uuid
     });
-    
+
     controller.value = new AbortController();
         if(model=='whisper-1'){
 
@@ -328,11 +330,27 @@ const submit= (model:string, message:any[],opt?:any)=>{
             });
 
         }else{
+            // 从opt参数中获取enableThinking值，如果没有则默认为false
+            const enableThinking = opt?.enableThinking ?? false;
+            
             subModel( {message, model,
                 uuid: st.value.uuid //当前会话
                 ,onMessage: (d) => {
-                    mlog('🐞消息', d)
-                    textRz.value.push(d.text)
+                    mlog('.debugLine', d)
+                    // 只有在启用深度思考时才使用部分更新逻辑
+                    if (enableThinking && d.isPartial) {
+                        textRz.value.push(d.text)
+                    } else if (!enableThinking) {
+                        // 非深度思考模式下，累积显示所有内容
+                        if (textRz.value.length > 0) {
+                            textRz.value[0] += d.text
+                        } else {
+                            textRz.value = [d.text]
+                        }
+                    } else {
+                        // 深度思考模式下，非部分更新时重置内容
+                        textRz.value = [d.text]
+                    }
                 },
                 onError: (e: any) => {
                     mlog('onError', e)
@@ -346,7 +364,8 @@ const submit= (model:string, message:any[],opt?:any)=>{
                 chatType: st.value.chatType,
                 appId: st.value.appId,
                 hasAttachment: nGptStore.hasAttachment,
-                autoSelectModel: nGptStore.autoSelectModel
+                autoSelectModel: nGptStore.autoSelectModel,
+                enableThinking: enableThinking  // 添加enableThinking参数
             }).then(()=>goFinish() ).catch(e=>{
                 if(e.message!='canceled')  textRz.value.push("\n"+t('mj.fail')+":\n```\n"+(e.reason??JSON.stringify(e,null,2)) +"\n```\n")
                 goFinish();
