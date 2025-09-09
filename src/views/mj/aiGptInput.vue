@@ -105,6 +105,17 @@ const toggleDeepThinkingMode = () => {
   deepThinkingMode.value = !deepThinkingMode.value;
 };
 
+// 监听模型变化，如果从支持深度思考的模型切换到不支持深度思考的模型，则关闭深度思考功能
+watch(
+  () => gptConfigStore.myData.model,
+  (newModel, oldModel) => {
+    // 如果之前开启深度思考并且新模型不支持深度思考，则关闭深度思考模式
+    if (deepThinkingMode.value && !isSupportDeepThinking.value) {
+      deepThinkingMode.value = false;
+    }
+  }
+);
+
 watch(
 	() => gptConfigStore.myData,
 	() => (nGptStore.value = chatSet.getGptConfig()),
@@ -585,7 +596,7 @@ function handleClear() {
 								>模型:{{
 									nGptStore.modelLabel
 										? truncateText(nGptStore.modelLabel, 20)
-										: "deepseek/deepseek-v3.1"
+										: "solstone"
 								}}
 								{{
 									nGptStore.kid

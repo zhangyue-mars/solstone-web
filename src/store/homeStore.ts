@@ -54,7 +54,7 @@ const getGptInt= ():gptConfigType =>{
 }
 
 const  getDefault=()=>{
-const amodel = homeStore.myData.session.amodel??'deepseek/deepseek-v3.1'
+const amodel = homeStore.myData.session.amodel??'solstone'
 let v:gptConfigType={
     model: amodel,
     modelLabel: '',
