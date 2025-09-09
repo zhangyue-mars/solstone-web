@@ -33,6 +33,7 @@ import drawListVue from "../mj/drawList.vue"
 import aiGPT from "../mj/aiGpt.vue"
 import AiSiderInput from "../mj/aiSiderInput.vue"
 import aiGptInput from "../mj/aiGptInput.vue"
+import TokenDisplay from "../mj/TokenDisplay.vue"
 
 let controller = new AbortController()
 
@@ -423,7 +424,8 @@ const ychat = computed(() => {
 
     <footer :class="footerClass" class="footer-content" v-if="local !== 'draw'">
       <!-- max-w-screen-xl -->
-      <div class="w-full max-w-[1100px] m-auto">
+      <div class="w-full max-w-[1100px] m-auto relative">
+        <TokenDisplay :modelValue="prompt" />
         <aiGptInput @handle-clear="handleClear" @export="handleExport"
           v-if="['gpt-4o-mini', 'gpt-3.5-turbo-16k'].indexOf(gptConfigStore.myData.model) > -1 || st.inputme"
           v-model:modelValue="prompt" :disabled="buttonDisabled" :searchOptions="searchOptions" />
