@@ -287,7 +287,7 @@ const handleSelect = (key: string) => {
 			</div>
 		</div>
 	</div>
-	<Setting v-if="st.show" v-model:visible="st.show" />
+	<Setting  v-model:visible="st.show" />
 	<PromptStore v-model:visible="show"></PromptStore>
 
 	<!-- 用户协议对话框 -->

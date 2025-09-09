@@ -6,8 +6,11 @@ export interface UserInfo {
   avatar: string
   name: string
   userBalance: number
-  userGrade: string,
+  userGrade: string
   userName: string
+  userId?: string | number
+  roleName?: string
+  createTime?: string
 }
 
 export interface UserState {
@@ -20,7 +23,8 @@ export function defaultSetting(): UserState {
       avatar: 'https://avatars.githubusercontent.com/u/32251822?v=4',
       name: '熊猫助手',
       userBalance: 0,
-      userGrade: '0'
+      userGrade: '0',
+      userName: ''
     },
   }
 }
@@ -33,4 +37,3 @@ export function getLocalState(): UserState {
 export function setLocalState(setting: UserState): void {
   ss.set(LOCAL_NAME, setting)
 }
-

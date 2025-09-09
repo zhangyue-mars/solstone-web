@@ -5,13 +5,17 @@ export interface LoginFrom {
 }
 
 export interface LoginUserInfo {
-	userId:bigint;// 用户id
-	nickName:string; //用户账号
-	avatar:string; // 用户头像
-	userBalance:number; // 账户余额
+	userId: string | number; // 用户id
+	nickName: string; // 用户昵称
+	avatar: string; // 用户头像
+	userBalance: number; // 账户余额
+	userName: string; // 用户名（邮箱）
+	userGrade?: string; // 用户等级
+	createTime?: string; // 创建时间
+	roleName?: string; // 角色名
 }
 
 export interface UserData {
-	token:string; // 登录token
-	user:LoninUserInfo; //用户信息
+	token: string; // 登录token
+	user: LoginUserInfo; // 用户信息
 }

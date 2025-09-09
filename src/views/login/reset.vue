@@ -46,10 +46,10 @@ function validateForm() {
 
   // 邮箱验证
   if (!resetForm.email) {
-    formErrors.email = t('reset.usernameOrPasswordEmpty');
+    formErrors.email = t("邮箱不能为空");
     isValid = false;
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetForm.email)) {
-    formErrors.email = t('reset.invalidEmail');
+    formErrors.email = t("请输入有效的邮箱地址");
     isValid = false;
   } else {
     formErrors.email = '';
@@ -57,7 +57,7 @@ function validateForm() {
 
   // 验证码验证
   if (!resetForm.code) {
-    formErrors.code = t('reset.codeRequired');
+    formErrors.code = t("请输入验证码");
     isValid = false;
   } else {
     formErrors.code = '';
@@ -65,7 +65,7 @@ function validateForm() {
 
   // 密码验证
   if (!resetForm.password) {
-    formErrors.password = t('reset.passwordRequired');
+    formErrors.password = t("请输入新密码");
     isValid = false;
   } else {
     formErrors.password = '';
@@ -73,10 +73,10 @@ function validateForm() {
 
   // 确认密码验证
   if (!resetForm.confirmPassword) {
-    formErrors.confirmPassword = t('reset.confirmPasswordRequired');
+    formErrors.confirmPassword = t("请确认密码");
     isValid = false;
   } else if (resetForm.password !== resetForm.confirmPassword) {
-    formErrors.confirmPassword = t('reset.passwordMismatch');
+    formErrors.confirmPassword = t("两次输入的密码不一致");
     isValid = false;
   } else {
     formErrors.confirmPassword = '';
@@ -92,11 +92,11 @@ async function handleResetPassword(e: MouseEvent) {
 
   try {
     resetLoading.value = true;
-    await reset(resetForm.email, resetForm.code, resetForm.password);
-    message.success(t("reset.resetSuccess"));
+    await reset(resetForm.email, resetForm.password, resetForm.code);
+    message.success(t("密码重置成功"));
     router.push("/login");
   } catch (error: any) {
-    message.error(error.message || t("reset.resetFailed"));
+    message.error(error.message || t("密码重置失败"));
   } finally {
     resetLoading.value = false;
   }
@@ -106,16 +106,16 @@ async function handleResetPassword(e: MouseEvent) {
 const isSending = ref(false);
 const countdown = ref(60);
 const codeButtonText = computed(() => {
-  return isSending.value ? `${countdown.value}s` : t('reset.get_verification_code');
+  return isSending.value ? `${countdown.value}s` : t("获取验证码");
 });
 
 async function sendVerificationCode() {
   // 验证邮箱
   if (!resetForm.email) {
-    formErrors.email = t('reset.emailRequired');
+    formErrors.email = t("请输入邮箱");
     return;
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetForm.email)) {
-    formErrors.email = t('reset.invalidEmail');
+    formErrors.email = t("请输入有效的邮箱地址");
     return;
   } else {
     formErrors.email = '';
@@ -126,8 +126,8 @@ async function sendVerificationCode() {
   try {
     isSending.value = true;
     await getVerificationCode(resetForm.email);
-    message.success(t("reset.codeSent"));
-    
+    message.success(t("验证码已发送至您的邮箱"));
+
     // 开始倒计时
     countdown.value = 60;
     const timer = setInterval(() => {
@@ -138,7 +138,7 @@ async function sendVerificationCode() {
       }
     }, 1000);
   } catch (error: any) {
-    message.error(error.message || t("reset.sendCodeFailed"));
+    message.error(error.message || t("验证码发送失败"));
     isSending.value = false;
   }
 }
@@ -175,19 +175,17 @@ const brandSectionStyle = computed(() => {
         <div class="form-wrapper">
 
           <div class="login-methods">
-            <div class="active-method">{{ $t("reset.reset") }}</div>
+            <div class="active-method">{{ t("重置密码") }}</div>
           </div>
 
           <div class="form-content">
             <!-- 邮箱输入 -->
             <div class="input-group">
               <div class="input-label-row">
-                <NText strong class="input-label">
-                  {{ $t("reset.email") }}
-                </NText>
+                <NText strong class="input-label">{{ t("邮箱") }}</NText>
                 <div v-if="formErrors.email" class="error-message">{{ formErrors.email }}</div>
               </div>
-              <NInput v-model:value="resetForm.email" :placeholder="$t('reset.enter_email')" round clearable
+              <NInput v-model:value="resetForm.email" :placeholder="t('请输入邮箱')" round clearable
                 class="custom-input" :status="formErrors.email ? 'error' : undefined">
                 <template #prefix>
                   <NIcon :component="MailOutline" />
@@ -198,13 +196,11 @@ const brandSectionStyle = computed(() => {
             <!-- 验证码输入 -->
             <div class="input-group">
               <div class="input-label-row">
-                <NText strong class="input-label">
-                  {{ $t("reset.verification_code") }}
-                </NText>
+                <NText strong class="input-label">{{ t("验证码") }}</NText>
                 <div v-if="formErrors.code" class="error-message">{{ formErrors.code }}</div>
               </div>
               <div class="verification-code-row">
-                <NInput v-model:value="resetForm.code" :placeholder="$t('reset.enter_verification_code')" round
+                <NInput v-model:value="resetForm.code" :placeholder="t('请输入验证码')" round
                   class="verification-input" :status="formErrors.code ? 'error' : undefined">
                   <template #prefix>
                     <NIcon :component="KeyOutline" />
@@ -219,12 +215,10 @@ const brandSectionStyle = computed(() => {
             <!-- 新密码输入 -->
             <div class="input-group">
               <div class="input-label-row">
-                <NText strong class="input-label">
-                  {{ $t("reset.new_password") }}
-                </NText>
+                <NText strong class="input-label">{{ t("新密码") }}</NText>
                 <div v-if="formErrors.password" class="error-message">{{ formErrors.password }}</div>
               </div>
-              <NInput v-model:value="resetForm.password" type="password" :placeholder="$t('reset.enter_new_password')" round
+              <NInput v-model:value="resetForm.password" type="password" :placeholder="t('请输入新密码')" round
                 show-password-on="click" class="custom-input" :status="formErrors.password ? 'error' : undefined">
                 <template #prefix>
                   <NIcon :component="LockClosedOutline" />
@@ -235,12 +229,10 @@ const brandSectionStyle = computed(() => {
             <!-- 确认密码输入 -->
             <div class="input-group">
               <div class="input-label-row">
-                <NText strong class="input-label">
-                  {{ $t("reset.confirm_password") }}
-                </NText>
+                <NText strong class="input-label">{{ t("确认密码") }}</NText>
                 <div v-if="formErrors.confirmPassword" class="error-message">{{ formErrors.confirmPassword }}</div>
               </div>
-              <NInput v-model:value="resetForm.confirmPassword" type="password" :placeholder="$t('reset.enter_confirm_password')" round
+              <NInput v-model:value="resetForm.confirmPassword" type="password" :placeholder="t('请再次输入密码')" round
                 show-password-on="click" class="custom-input" :status="formErrors.confirmPassword ? 'error' : undefined">
                 <template #prefix>
                   <NIcon :component="LockClosedOutline" />
@@ -254,15 +246,15 @@ const brandSectionStyle = computed(() => {
                 <template #icon>
                   <NIcon :component="ReloadOutline" />
                 </template>
-                {{ $t("reset.reset") }}
+                {{ t("重置密码") }}
               </NButton>
             </div>
 
             <!-- 返回登录 -->
             <div class="login-prompt">
-              {{ $t("reset.reset_ok") }}
+              {{ t("已经重置成功？") }}
               <NButton text type="primary" @click="router.push('/login')">
-                {{ $t("reset.login") }}
+                {{ t("去登录") }}
               </NButton>
             </div>
           </div>
@@ -271,6 +263,7 @@ const brandSectionStyle = computed(() => {
     </NSpin>
   </div>
 </template>
+
 
 <style scoped>
 .login-container {
@@ -436,12 +429,12 @@ html.dark .login-content {
   .brand-title {
     font-size: 2rem;
   }
-  
+
   .verification-code-row {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .send-code-button {
     width: 100%;
   }

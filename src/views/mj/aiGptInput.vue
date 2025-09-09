@@ -330,22 +330,6 @@ const goASR = () => {
 		.start();
 };
 
-const drOption = [
-	{
-		label: t("mj.micWhisper"),
-		key: "whisper",
-		icon: iconRender({ icon: "ri:openai-fill" }),
-	},
-	{
-		label: t("mj.micAsr"),
-		icon: iconRender({ icon: "ri:chrome-line" }),
-		key: "asr",
-	},
-];
-const handleSelectASR = (key: string | number) => {
-	if (key == "asr") goASR();
-	if (key == "whisper") st.value.showMic = true;
-};
 /**
  * 校验字符串的大小
  * @param inputStr 输入的字符
@@ -512,32 +496,27 @@ function handleClear() {
 							</div>
 
 							<!-- 语音按钮 -->
-							<n-dropdown
-								trigger="hover"
-								:options="drOption"
-								@select="handleSelectASR"
-							>
-								<div class="relative; w-[22px]">
-									<div
-										class="absolute bottom-[14px] left-[31px]"
-										v-if="st.micStart"
-									>
-										<span class="relative flex h-3 w-3">
-											<span
-												class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"
-											></span>
-											<span
-												class="relative inline-flex rounded-full h-3 w-3 bg-red-400"
-											></span>
-										</span>
-									</div>
-
-									<SvgIcon
-										icon="bi:mic"
-										class="absolute bottom-[10px] left-[30px] cursor-pointer"
-									></SvgIcon>
+							<div class="relative; w-[22px]">
+								<div
+									class="absolute bottom-[14px] left-[31px]"
+									v-if="st.micStart"
+								>
+									<span class="relative flex h-3 w-3">
+										<span
+											class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"
+										></span>
+										<span
+											class="relative inline-flex rounded-full h-3 w-3 bg-red-400"
+										></span>
+									</span>
 								</div>
-							</n-dropdown>
+
+								<SvgIcon
+									icon="bi:mic"
+									class="absolute bottom-[10px] left-[30px] cursor-pointer"
+									@click="goASR"
+								></SvgIcon>
+							</div>
 						</template>
 						<template #suffix v-if="isMobile">
 							<div class="relative; w-[40px]">
@@ -611,43 +590,39 @@ function handleClear() {
 						class="button-group"
 						style="display: flex; align-items: center; gap: 6px"
 					>
-						<!-- 语音下拉 -->
-						<n-dropdown
-							trigger="hover"
-							:options="drOption"
-							@select="handleSelectASR"
+						<!-- 语音按钮 -->
+						<div
+							style="
+								width: 40px;
+								height: 40px;
+								display: flex;
+								justify-content: center;
+								align-items: center;
+								position: relative;
+							"
 						>
+							<div class="absolute top-1 right-1" v-if="st.micStart">
+								<span class="relative flex h-3 w-3">
+									<span
+										class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"
+									></span>
+									<span
+										class="relative inline-flex h-3 w-3 bg-red-400"
+									></span>
+								</span>
+							</div>
 							<div
 								style="
-									width: 40px;
-									height: 40px;
 									display: flex;
 									justify-content: center;
-									align-items: center;
-									position: relative;
+									transform: translate(15px, -5px);
+									cursor: pointer;
 								"
+								@click="goASR"
 							>
-								<div class="absolute top-1 right-1" v-if="st.micStart">
-									<span class="relative flex h-3 w-3">
-										<span
-											class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"
-										></span>
-										<span
-											class="relative inline-flex h-3 w-3 bg-red-400"
-										></span>
-									</span>
-								</div>
-								<div
-									style="
-										display: flex;
-										justify-content: center;
-										transform: translate(15px, -5px);
-									"
-								>
-									<IconSvg icon="voice" width="18px" height="18px" />
-								</div>
+								<IconSvg icon="voice" width="18px" height="18px" />
 							</div>
-						</n-dropdown>
+						</div>
 
 						<!-- 上传按钮 -->
 						<n-tooltip trigger="hover">
