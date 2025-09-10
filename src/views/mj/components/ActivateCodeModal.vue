@@ -173,7 +173,7 @@ const handleCancel = () => {
 
 const userBalanceDisplay = computed(() => {
 	if (userBalance.value === null || userBalance.value === undefined) return "—";
-	return `${Number(userBalance.value).toFixed(7)} 百万`;
+	return `${Number(userBalance.value)} 百万`;
 });
 
 const fetchUserBalance = async () => {

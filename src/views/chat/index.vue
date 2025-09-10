@@ -49,6 +49,9 @@ const { isMobile } = useBasicLayout()
 const {  updateChat, updateChatSome} = useChat()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 
+// 添加TokenDisplay组件的引用
+const tokenDisplayRef = ref(null)
+
 const { uuid } = route.params as { uuid: string }
 
 const dataSources = computed(() => chatStore.getChatByUuid(+uuid))
@@ -338,9 +341,27 @@ watch(
     }
     if (n == "stopLoading") {
       loading.value = false
+      // AI回答完成后，更新TokenDisplay中的用户余额
+      // setTimeout(() => {
+      //   tokenDisplayRef.value?.updateUserBalance()
+      // }, 100)
     }
   }
 )
+
+// 添加对聊天记录变化的监听，当聊天记录发生变化时更新TokenDisplay
+watch(
+  () => dataSources.value.length,
+  () => {
+    if (!loading.value && dataSources.value.length > 0) {
+      // AI回答完成后，更新TokenDisplay中的用户余额
+      setTimeout(() => {
+        tokenDisplayRef.value?.updateUserBalance()
+      }, 100)
+    }
+  }
+)
+
 const st = ref({ inputme: true })
 
 watch(
@@ -425,7 +446,7 @@ const ychat = computed(() => {
     <footer :class="footerClass" class="footer-content" v-if="local !== 'draw'">
       <!-- max-w-screen-xl -->
       <div class="w-full max-w-[1100px] m-auto relative">
-        <TokenDisplay :modelValue="prompt" />
+        <TokenDisplay ref="tokenDisplayRef" :modelValue="prompt" />
         <aiGptInput @handle-clear="handleClear" @export="handleExport"
           v-if="['gpt-4o-mini', 'gpt-3.5-turbo-16k'].indexOf(gptConfigStore.myData.model) > -1 || st.inputme"
           v-model:modelValue="prompt" :disabled="buttonDisabled" :searchOptions="searchOptions" />

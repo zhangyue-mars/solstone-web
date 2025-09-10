@@ -19,6 +19,7 @@ const props = defineProps<{
 
 const myToken = ref({ remain: 0, modelTokens: "4k" })
 const userBalance = ref<number | null>(null)
+const forceUpdateKey = ref(0) // 强制更新key
 
 const { uuid } = route.params as { uuid: string }
 const uuid1 = chatStore.active
@@ -33,6 +34,17 @@ const funt = async () => {
   myToken.value = d
   return d
 }
+
+// 新增方法：强制更新用户余额
+const updateUserBalance = async () => {
+  await fetchUserBalance()
+  forceUpdateKey.value++ // 强制组件重新渲染
+}
+
+defineExpose({
+  funt,
+  updateUserBalance // 暴露更新用户余额的方法
+})
 
 // 获取用户余额
 const fetchUserBalance = async () => {
@@ -56,6 +68,21 @@ watch(() => dataSources.value, funt)
 watch(() => gptConfigStore.myData, funt, { deep: true })
 watch(() => homeStore.myData.isLoader, funt, { deep: true })
 
+// 添加对聊天记录变化的监听，当聊天记录发生变化时更新用户余额
+watch(() => dataSources.value.length, () => {
+  fetchUserBalance()
+  forceUpdateKey.value++ // 强制组件重新渲染
+})
+
+// 监听homeStore中的act变化，当AI回答完成时更新用户余额
+watch(() => homeStore.myData.act, (newAct) => {
+  if (newAct === 'stopLoading' || newAct === 'scrollToBottomIfAtBottom') {
+    // AI回答完成，更新用户余额
+    fetchUserBalance()
+    forceUpdateKey.value++ // 强制组件重新渲染
+  }
+})
+
 onMounted(() => {
   funt()
   fetchUserBalance()
@@ -63,7 +90,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="absolute -top-6 right-12 z-10" v-if="!isMobile">
+  <div :key="forceUpdateKey" class="absolute -top-6 right-12 z-10" v-if="!isMobile">
     <NPopover trigger="hover">
       <template #trigger>
         <NTag
