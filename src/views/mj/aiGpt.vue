@@ -66,7 +66,7 @@ watch(()=>homeStore.myData.act, async (n)=>{
 
         let promptMsg = getInitChat(dd.prompt );
         if( dd.fileBase64 && dd.fileBase64.length>0 ){
-            if( !canVisionModel(model)  ) model='gpt-image';
+            if( !canVisionModel(model)  ) model='qwen/qwen2.5-vl-72b-instruct';
             // 设置是否有附件为true
             nGptStore.hasAttachment = true;
             // 立即保存到聊天设置中
@@ -332,7 +332,7 @@ const submit= (model:string, message:any[],opt?:any)=>{
         }else{
             // 从opt参数中获取enableThinking值，如果没有则默认为false
             const enableThinking = opt?.enableThinking ?? false;
-            
+
             subModel( {message, model,
                 uuid: st.value.uuid //当前会话
                 ,onMessage: (d) => {
