@@ -50,7 +50,7 @@ const formValue = ref({
 	retrieveLimit: 3, // 知识库中检索的条数
 	textBlockSize: 500, // 文本块大小
 	vectorModelName: "weaviate", //  向量库
-	embeddingModelName: "baai/bge-m3", //  向量模型
+	embeddingModelName: "quentinz/bge-large-zh-v1.5", //  向量模型
 	promptTemplateId: "", //  提示词模板ID
 });
 
