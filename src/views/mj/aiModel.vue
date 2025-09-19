@@ -19,7 +19,7 @@ const chatSet = new chatSetting(uuid == null ? 1002 : uuid);
 
 const nGptStore = ref(chatSet.getGptConfig());
 const message = useMessage()
-onMounted(() => { fetchData(), fetchDataGetKnowledge() });
+onMounted(() => { fetchData(), fetchDataGetKnowledge(), setDefaultModel() });
 
 
 const config = ref<any[]>([])
@@ -106,6 +106,25 @@ const modellist = computed(() => { //
 	);
 	return uniqueArray;
 });
+
+// 修改设置默认模型的函数，查找实际modelName对应的solstone描述
+const setDefaultModel = () => {
+	// 如果当前没有选择模型，就设置默认值
+	if (!nGptStore.value.model && modellist.value.length > 0) {
+		// 查找solstone模型描述对应的modelName
+		const solstoneModel = modellist.value.find(model => model.label === 'solstone');
+		if (solstoneModel) {
+			nGptStore.value.model = solstoneModel.value; // 使用modelName
+			nGptStore.value.modelLabel = solstoneModel.label; // 使用modelDescribe
+		} else {
+			// 如果找不到solstone，使用第一个模型
+			nGptStore.value.model = modellist.value[0].value;
+			nGptStore.value.modelLabel = modellist.value[0].label;
+		}
+		// 保存设置
+		saveChat('hide');
+	}
+};
 
 // 当前选中模型
 const selectedModel = computed<any>(() => {

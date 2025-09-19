@@ -85,11 +85,16 @@ const dataSources = computed(() => chatStore.getChatByUuid(+uuid));
 // 存储模型列表
 const config = ref<any[]>([]);
 
-// 获取当前选中的模型信息，包括isDeepThinking属性
+// 获取当前选中的模型信息，包括modelDescribe属性
 const selectedModel = computed(() => {
   // 从模型列表中查找当前选中的模型
   if (!config.value || !gptConfigStore.myData.model) return null;
   return config.value.find((model: any) => model.modelName === gptConfigStore.myData.model);
+});
+
+// 获取当前选中模型的描述（用于显示）
+const selectedModelDescribe = computed(() => {
+  return selectedModel.value ? selectedModel.value.modelDescribe : 'solstone';
 });
 
 // 检查是否支持深度思考功能
@@ -574,7 +579,7 @@ function handleClear() {
 								>模型:{{
 									nGptStore.modelLabel
 										? truncateText(nGptStore.modelLabel, 20)
-										: "solstone"
+										: selectedModelDescribe
 								}}
 								{{
 									nGptStore.kid

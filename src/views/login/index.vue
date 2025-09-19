@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import {
   NButton, NInput, NSpin, NText, useMessage,
-  NIcon, useThemeVars
+  NIcon, useThemeVars, NCheckbox
 } from "naive-ui";
 import { LoginFrom } from "@/typings/user";
 import {
@@ -28,6 +28,9 @@ const loginForm = reactive<LoginFrom>({
   type: ''
 });
 
+// 记住密码状态管理
+const rememberCredentials = ref(false);
+
 // 加载状态管理
 const loginLoading = ref(false);
 const pageLoading = ref(false);
@@ -36,6 +39,22 @@ const pageLoading = ref(false);
 const formErrors = reactive({
   username: '',
   password: ''
+});
+
+// 在组件挂载时检查是否有记住的账号密码
+onMounted(() => {
+  const savedCredentials = localStorage.getItem('savedLoginCredentials');
+  if (savedCredentials) {
+    try {
+      const decryptedCredentials = JSON.parse(atob(savedCredentials));
+      loginForm.username = decryptedCredentials.username || '';
+      loginForm.password = decryptedCredentials.password || '';
+      rememberCredentials.value = true;
+    } catch (e) {
+      // 解析失败则清除存储的数据
+      localStorage.removeItem('savedLoginCredentials');
+    }
+  }
 });
 
 // 验证表单
@@ -68,6 +87,21 @@ async function handleLogin(e: MouseEvent) {
   try {
     loginLoading.value = true;
     await userStore.userLogin(loginForm);
+
+    // 如果用户选择了记住账号密码，则保存到本地存储
+    if (rememberCredentials.value) {
+      const credentials = {
+        username: loginForm.username,
+        password: loginForm.password
+      };
+      // 简单的加密存储（实际项目中应该使用更安全的加密方式）
+      const encryptedCredentials = btoa(JSON.stringify(credentials));
+      localStorage.setItem('savedLoginCredentials', encryptedCredentials);
+    } else {
+      // 如果没有选择记住密码，则清除之前保存的凭证
+      localStorage.removeItem('savedLoginCredentials');
+    }
+
     message.success(t("login.loginSuccess"));
     router.push("/");
   } catch (error: any) {
@@ -81,7 +115,6 @@ async function handleLogin(e: MouseEvent) {
 const navigateToRegister = () => {
   router.push("/regist");
 };
-
 
 // 计算背景样式，适配暗黑模式
 const brandSectionStyle = computed(() => {
@@ -152,8 +185,13 @@ const brandSectionStyle = computed(() => {
               </NInput>
             </div>
 
-            <!-- 额外链接 -->
-            <div class="additional-links">
+            <!-- 记住账号密码选项和忘记密码链接 -->
+            <div class="credentials-options">
+              <div class="remember-credentials">
+                <NCheckbox v-model:checked="rememberCredentials">
+                  记住账号密码
+                </NCheckbox>
+              </div>
               <NButton text tag="a" href="#/resetpassword" class="forgot-password">
                 {{ $t("login.forgotPassword") }}
               </NButton>
@@ -181,8 +219,6 @@ const brandSectionStyle = computed(() => {
         </div>
       </div>
     </NSpin>
-
-
   </div>
 </template>
 
@@ -302,6 +338,19 @@ html.dark .login-content {
   transition: all 0.3s ease;
 }
 
+.credentials-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  margin-bottom: 1rem;
+}
+
+.remember-credentials {
+  display: flex;
+  align-items: center;
+}
+
 .additional-links {
   display: flex;
   justify-content: flex-end;
@@ -341,7 +390,6 @@ html.dark .login-content {
   text-align: center;
   font-size: 14px;
   color: var(--n-text-color-3);
-  margin-top: auto;
   padding-top: 1rem;
 }
 

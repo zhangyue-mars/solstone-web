@@ -70,11 +70,15 @@ async function delKnowledgeForm(id: string) {
 	const req = {
 		id: id, // 附件id
 	};
-	const result = await delKnowledge(req);
-	if (result.code == 200) {
-		message.success("删除成功!");
-	} else {
-		message.error("删除失败!" + result.data.msg);
+	try {
+		const result: { code?: number, msg?: string, data?: any } = await delKnowledge(req);
+		if (result.code === 200) {
+			message.success("删除成功!");
+		} else {
+			message.error("删除失败!" + (result.msg || result.data?.msg || '未知错误'));
+		}
+	} catch (error: any) {
+		message.error("删除失败!" + (error.message || '系统未知错误（weaviate），请反馈给管理员'));
 	}
 	// 重新获取数据，更新表格
 	await fetchData();
