@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { NAvatar,NButton,useMessage,NEllipsis} from 'naive-ui'
 import defaultAvatar from '@/assets/avatar.jpg'
 import { isString } from '@/utils/is'
@@ -9,13 +9,21 @@ import { loginOut,getUserInfo} from '@/api/user'
 import { UserData } from "@/typings/user"
 import { defaultSetting,UserInfo } from '@/store/modules/user/helper'
 import { getToken } from "@/store/modules/auth/helper";
+import { useUserStore } from '@/store';
 import to from "await-to-js";
 
 const router = useRouter()
-const userInfo = ref<UserInfo>(defaultSetting().userInfo)
+const userStore = useUserStore()
 const message = useMessage()
 
-onMounted(() => { getLoginUserInfo() });
+const userInfo = computed(() => userStore.userInfo)
+
+onMounted(() => {
+  // 只有当用户信息不存在时才获取用户信息
+  if (getToken() && !userInfo.value.userName) {
+    getLoginUserInfo()
+  }
+});
 
 /**
  * 获取当前登录用户信息
@@ -31,9 +39,16 @@ async function getLoginUserInfo() {
         message.error(err.toString())
       }
   if(newUserInfo){ 
-    userInfo.value.avatar = newUserInfo.data.user.avatar;
-    userInfo.value.name = newUserInfo.data.user.nickName;
-    userInfo.value.userBalance = newUserInfo.data.user.userBalance;
+    // 更新用户存储中的信息
+    userStore.updateUserInfo({
+      avatar: newUserInfo.data.user.avatar,
+      name: newUserInfo.data.user.nickName,
+      userBalance: newUserInfo.data.user.userBalance,
+      userName: newUserInfo.data.user.userName,
+      userId: newUserInfo.data.user.userId,
+      roleName: newUserInfo.data.user.roles && newUserInfo.data.user.roles.length > 0 ? newUserInfo.data.user.roles[0].roleName : '',
+      createTime: newUserInfo.data.user.createTime
+    })
   } 
 }  
 

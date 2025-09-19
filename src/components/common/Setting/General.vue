@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { NButton, NInput, NSelect, useMessage, NUpload, UploadFileInfo, NText } from 'naive-ui'
 import type { Language, Theme } from '@/store/modules/app/helper'
 import { SvgIcon } from '@/components/common'
@@ -90,9 +90,10 @@ const initFileList = () => {
   }
 }
 
-onMounted(() => {
+// 监听用户信息变化，更新文件列表
+watch(userInfo, () => {
   initFileList()
-})
+}, { immediate: true })
 
 const token = getToken()
 const headers = {
@@ -129,18 +130,17 @@ const fetchUserInfo = async () => {
         roleName: userData.roles && userData.roles.length > 0 ? userData.roles[0].roleName : '',
         createTime: userData.createTime
       })
-
-      // 更新文件列表
-      initFileList()
     }
   } catch (error) {
     console.error('获取用户信息失败:', error)
   }
 }
 
-// 组件挂载时获取用户信息
+// 只有当用户信息不存在时才获取用户信息
 onMounted(() => {
-  fetchUserInfo()
+  if (getToken() && !userInfo.value.userName) {
+    fetchUserInfo()
+  }
 })
 </script>
 

@@ -105,10 +105,28 @@ const isSupportDeepThinking = computed(() => {
 // 深度思考模式状态
 const deepThinkingMode = ref(false);
 
+// 当存在附件时，禁用深度思考模式
+const isAttachmentPresent = computed(() => {
+  return st.value.fileBase64 && st.value.fileBase64.length > 0;
+});
+
 // 切换深度思考模式
 const toggleDeepThinkingMode = () => {
+  // 如果存在附件，则不允许启用深度思考模式
+  if (isAttachmentPresent.value) {
+    ms.warning(t("mj.attachmentPresentWarning"));
+    return;
+  }
   deepThinkingMode.value = !deepThinkingMode.value;
 };
+
+// 监听附件变化，如果存在附件则关闭深度思考模式
+watch(isAttachmentPresent, (hasAttachment) => {
+  if (hasAttachment && deepThinkingMode.value) {
+    deepThinkingMode.value = false;
+    ms.warning(t("mj.attachmentPresentWarning"));
+  }
+});
 
 // 监听模型变化，如果从支持深度思考的模型切换到不支持深度思考的模型，则关闭深度思考功能
 watch(
@@ -166,8 +184,8 @@ const handleSubmit = () => {
 		fileBase64: st.value.fileBase64,
 		chatType: st.value.chatType ? 1 : 0,
 		appId: gptConfigStore.myData.gpts ? gptConfigStore.myData.gpts.id : "",
-		// 添加深度思考模式参数
-		enableThinking: deepThinkingMode.value,
+		// 添加深度思考模式参数，如果存在附件则强制为false
+		enableThinking: isAttachmentPresent.value ? false : deepThinkingMode.value,
 	};
 	homeStore.setMyData({ act: "gpt.submit", actData: obj });
 	mvalue.value = "";

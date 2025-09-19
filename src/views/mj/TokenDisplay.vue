@@ -68,20 +68,25 @@ watch(() => dataSources.value, funt)
 watch(() => gptConfigStore.myData, funt, { deep: true })
 watch(() => homeStore.myData.isLoader, funt, { deep: true })
 
-// 添加对聊天记录变化的监听，当聊天记录发生变化时更新用户余额
-watch(() => dataSources.value.length, () => {
-  fetchUserBalance()
-  forceUpdateKey.value++ // 强制组件重新渲染
-})
-
-// 监听homeStore中的act变化，当AI回答完成时更新用户余额
-watch(() => homeStore.myData.act, (newAct) => {
-  if (newAct === 'stopLoading' || newAct === 'scrollToBottomIfAtBottom') {
+// 移除对聊天记录长度变化的监听，避免在AI回答过程中频繁更新tokens数量
+// 添加对loading状态的监听，只在AI回答完全结束后更新用户余额
+watch(() => homeStore.myData.isLoader, (newLoadingState) => {
+  // 当loading状态从true变为false时，表示AI回答结束，此时更新tokens数量
+  if (!newLoadingState && !homeStore.myData.isLoader) {
     // AI回答完成，更新用户余额
     fetchUserBalance()
     forceUpdateKey.value++ // 强制组件重新渲染
   }
 })
+
+// 监听homeStore中的act变化，当AI回答完成时更新用户余额
+// watch(() => homeStore.myData.act, (newAct) => {
+//   if (newAct === 'stopLoading' || newAct === 'scrollToBottomIfAtBottom') {
+//     // AI回答完成，更新用户余额
+//     fetchUserBalance()
+//     forceUpdateKey.value++ // 强制组件重新渲染
+//   }
+// })
 
 onMounted(() => {
   funt()

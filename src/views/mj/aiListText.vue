@@ -10,10 +10,10 @@ defineProps<{myItem:Chat.History,myObj?:gptConfigType, index: any}>()
     <n-avatar v-if="myObj?.gpts" :src="myObj.gpts.logo" fallback-src="../../assets/avatar.jpg" :size="18" round/> 
     <IconSvg :icon="`block-${index%4}`" v-else></IconSvg>
 </span>
-<div class="relative flex-1 overflow-hidden break-all text-ellipsis whitespace-nowrap">
+<div class="relative flex-1 overflow-hidden break-all text-ellipsis whitespace-nowrap pr-8">
     <slot/> 
-    <span v-if="!myObj">{{ myItem.title }}</span>
-    <n-popover v-else   placement="right-start" trigger="hover">
+    <span v-if="!myItem.isEdit && !myObj">{{ myItem.title }}</span>
+    <n-popover v-else-if="!myItem.isEdit" placement="right-start" trigger="hover">
         <template #trigger>
         {{ myItem.title }}
         </template>

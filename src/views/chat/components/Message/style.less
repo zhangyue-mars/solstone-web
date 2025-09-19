@@ -1,138 +1,115 @@
 .markdown-body {
-	background-color: transparent;
 	font-size: 14px;
+	background-color: transparent;
+	color: #111827;
+
+	ul {
+		list-style-type: disc; /* 默认就是黑点，也可写 '•' */
+		padding-left: 20px; /* 根据需要调整缩进 */
+	}
+
 
 	p {
 		white-space: pre-wrap;
 	}
 
-	ol {
-		list-style-type: decimal;
-	}
-
-	ul {
-		list-style-type: disc;
-	}
-	img{
-		max-width: 400px;
-	}
-
-	pre code,
-	pre tt {
-		line-height: 1.65;
-	}
-
-	.highlight pre,
 	pre {
-		background-color: #fff;
+		margin: 0;
+		padding: 32px 16px 16px 16px;
+		border-radius: 12px;
+		background-color: #fafafa;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		overflow-x: auto;
+		font-family: "Fira Code", "Courier New", monospace;
+		line-height: 1.65;
+		position: relative;
 	}
 
-	code.hljs {
+	code {
+		font-family: "Fira Code", "Courier New", monospace;
+		font-size: 14px;
 		padding: 0;
+		background: transparent;
 	}
 
-	.code-block {
-		&-wrapper {
-			position: relative;
-			padding-top: 24px;
-		}
+	.code-block-wrapper {
+		position: relative;
 
-		&-header {
+		.code-block-header {
 			position: absolute;
-			top: 5px;
-			right: 0;
-			width: 100%;
-			padding: 0 1rem;
+			top: 8px;
+			right: 12px;
 			display: flex;
-			justify-content: flex-end;
 			align-items: center;
-			color: #b3b3b3;
+			gap: 6px;
+			color: #797a7b;
+			font-size: 12px;
 
 			&__copy {
 				cursor: pointer;
-				margin-left: 0.5rem;
 				user-select: none;
+				transition: color 0.2s;
 
 				&:hover {
-					color: #65a665;
+					color: #2080f0;
 				}
 			}
 		}
 	}
-
-
-	&.markdown-body-generate>dd:last-child:after,
-	&.markdown-body-generate>dl:last-child:after,
-	&.markdown-body-generate>dt:last-child:after,
-	&.markdown-body-generate>h1:last-child:after,
-	&.markdown-body-generate>h2:last-child:after,
-	&.markdown-body-generate>h3:last-child:after,
-	&.markdown-body-generate>h4:last-child:after,
-	&.markdown-body-generate>h5:last-child:after,
-	&.markdown-body-generate>h6:last-child:after,
-	&.markdown-body-generate>li:last-child:after,
-	&.markdown-body-generate>ol:last-child li:last-child:after,
-	&.markdown-body-generate>p:last-child:after,
-	&.markdown-body-generate>pre:last-child code:after,
-	&.markdown-body-generate>td:last-child:after,
-	&.markdown-body-generate>ul:last-child li:last-child:after {
-		animation: blink 1s steps(5, start) infinite;
-		color: #000;
-		content: '_';
-		font-weight: 700;
-		margin-left: 3px;
-		vertical-align: baseline;
-	}
-
-	@keyframes blink {
-		to {
-			visibility: hidden;
-		}
-	}
 }
 
-html.dark {
+.markdown-body li {
+	margin-top: 0.1em;
+	margin-bottom: 0.1em;
+	line-height: 1.5;
+}
 
-	.markdown-body {
+/* 暗黑模式 */
+html.dark .markdown-body {
+	color: #d1d5db;
 
-		&.markdown-body-generate>dd:last-child:after,
-		&.markdown-body-generate>dl:last-child:after,
-		&.markdown-body-generate>dt:last-child:after,
-		&.markdown-body-generate>h1:last-child:after,
-		&.markdown-body-generate>h2:last-child:after,
-		&.markdown-body-generate>h3:last-child:after,
-		&.markdown-body-generate>h4:last-child:after,
-		&.markdown-body-generate>h5:last-child:after,
-		&.markdown-body-generate>h6:last-child:after,
-		&.markdown-body-generate>li:last-child:after,
-		&.markdown-body-generate>ol:last-child li:last-child:after,
-		&.markdown-body-generate>p:last-child:after,
-		&.markdown-body-generate>pre:last-child code:after,
-		&.markdown-body-generate>td:last-child:after,
-		&.markdown-body-generate>ul:last-child li:last-child:after {
+	pre {
+		background-color: #1e1e1e;
+		box-shadow: none;
+	}
+
+	.code-block-wrapper .code-block-header {
+		color: #6b7280;
+
+		&__copy:hover {
 			color: #65a665;
 		}
 	}
+}
 
-	.message-reply {
-		.whitespace-pre-wrap {
-			white-space: pre-wrap;
-			color: var(--n-text-color);
-		}
-	}
-
-	.highlight pre,
-	pre {
-		background-color: #282c34;
+/* 响应式适配 */
+@media screen and (max-width: 533px) {
+	.markdown-body pre {
+		padding: 16px 12px;
 	}
 }
 
-@media screen and (max-width: 533px) {
-	.markdown-body .code-block-wrapper {
-		padding: unset;
+/* 深度思考 blockquote */
+.markdown-body blockquote.thinking-block {
+	border-left: 1px solid rgba(0, 0, 0, 0.15);
+	padding-left: 10px;
+	margin: 0 0 8px 0;
+	background: transparent;
+	font-style: normal !important;
+	font-weight: inherit !important;
+	font-family: inherit !important;
+	font-size: inherit !important;
+	color: #888888 !important;
+}
 
-		code {
-			padding: 24px 16px 16px 16px;
-		}
-	}
+/* 分割线 */
+.markdown-body hr {
+	border: none;
+	height: 1px;
+	margin: 18px 0;
+	background: linear-gradient(to right, transparent, #d1d5db, transparent);
+}
+
+html.dark .markdown-body hr {
+	background: linear-gradient(to right, transparent, #4b5563, transparent);
 }

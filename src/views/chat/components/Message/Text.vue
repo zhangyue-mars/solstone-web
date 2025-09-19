@@ -32,26 +32,11 @@ const { isMobile } = useBasicLayout();
 
 const textRef = ref<HTMLElement>();
 
-// const mdi = new MarkdownIt({
-// 	html: true,
-// 	linkify: true,
-// 	highlight(code, language) {
-// 		const validLang = !!(language && hljs.getLanguage(language));
-// 		if (validLang) {
-// 			const lang = language ?? "";
-// 			return highlightBlock(
-// 				hljs.highlight(code, { language: lang }).value,
-// 				lang
-// 			);
-// 		}
-// 		return highlightBlock(hljs.highlightAuto(code).value, "");
-// 	},
-// });
-
 const mdi = new MarkdownIt({
 	html: true,
 	linkify: true,
 	breaks: true, // 把换行转换为 <br>
+	// breaks: false, // 关闭自动换行
 	typographer: true, // 智能标点（如 "--" -> —）
 	highlight(code, language) {
 		const validLang = !!(language && hljs.getLanguage(language));
@@ -85,100 +70,51 @@ const wrapClass = computed(() => {
 		{ "text-red-500": props.error },
 	];
 });
-
-// const text = computed(() => {
-// 	let value = props.text ?? "";
-// 	if (!props.asRawText) {
-// 		value = value.replace(/\\\( *(.*?) *\\\)/g, "$$$1$$");
-// 		//value = value.replace(/\\\((.*?)\\\)/g, '$$$1$$');
-// 		value = value.replace(/\\\[ *(.*?) *\\\]/g, "$$$$$1$$$$");
-// 		//
-// 		value = value.replaceAll("\\[", "$$$$");
-// 		value = value.replaceAll("\\]", "$$$$");
-
-// 		//思考过程处理
-// 		//value= value.replace(/<think>([\s\S]*?)<\/think>/g, (match: string, content: string) => {
-// 		value = value.replace(
-// 			/<think>([\s\S]*?)(?=<\/think>|$)/g,
-// 			(match: string, content: string) => {
-// 				const processedContent: string = content
-// 					.split("\n")
-// 					.map((line) => (line.trim() ? ">" + line : line))
-// 					.join("\n")
-// 					.replace(/(\r?\n)+/g, "\n>\n");
-
-// 				return ">Thinking..." + processedContent;
-// 			}
-// 		);
-// 		value = value.replaceAll("</think>", "");
-// 		//mlog('replace', value)
-// 		return mdi.render(value);
-// 	}
-// 	return value;
-// });
 const text = computed(() => {
 	let value = props.text ?? "";
-
 	if (!props.asRawText) {
-		value = value.replace(/\r\n/g, "\n");
+		// value = value.replace(/\\\( *(.*?) *\\\)/g, "$$$1$$");
+		// value = value.replace(/\\\((.*?)\\\)/g, "$$$1$$");
+		// value = value.replace(/\\\[ *(.*?) *\\\]/g, "$$$$$1$$$$");
+		// value = value.replace(/(#+)\s*\*{1,2}(.+?)\*{1,2}/g, "$1 **$2**");
+		// //
+		// value = value.replaceAll("\\[", "$$$$");
+		// value = value.replaceAll("\\]", "$$$$");
+		// value = value.replace(/^\s*-(\S)/gm, "- $1");
+		// // value = value.replace(/^(#{1,6})([^\s#])/gm, "$1 $2");
+		// value = value.replace(/^\*{3}([^\*])/gm, "* **$1");
+		// // LaTeX 公式处理
+    // value = value.replace(/\\\( *(.*?) *\\\)/g, "$$$1$$");
+    // value = value.replace(/\\\((.*?)\\\)/g, "$$$1$$");
+    // value = value.replace(/\\\[ *(.*?) *\\\]/g, "$$$$$1$$$$");
 
-		// 1. 标题加粗处理：###**标题** -> ### **标题**
-		value = value.replace(/(#+)\s*\*{1,2}(.+?)\*{1,2}/g, "$1 **$2**");
-		// 标题与文字之间加空格（支持 #、##、### 等）
-		value = value.replace(/^(#{1,6})([^\s#])/gm, "$1 $2");
+    // // 标题加空格，并处理两颗星号加粗
+    // value = value.replace(/(#+)\s*\*{1,2}(.+?)\*{1,2}/g, "$1 **$2**");
+    // value = value.replace(/^(#{1,6})([^\s#])/gm, "$1 $2");
 
-		// 2. 中文引号加粗修复
-		value = value.replace(/[\*]{2}[“”](.+?)[“”][\*]{2}/g, "**$1**");
-		value = value.replace(/“\*\*(.+?)\*\*”/g, "**“$1”**");
-		value = value.replace(/\*\*“(.+?)”\*\*/g, "**“$1”**");
-		// 普通加粗处理，非贪婪匹配，禁止跨行
-		value = value.replace(/\*\*([^\n]+?)\*\*/g, "**$1**");
+    // // 三颗星号转成加粗（去掉斜体效果）
+    // value = value.replace(/\*{3}([^\*]+)\*{2,3}/g, "**$1**");
 
-		// 3. 列表前空格处理
-		value = value.replace(/-\*{1,2}/g, "- **");
-		value = value.replace(/^-(\S)/gm, "- $1"); // 行首列表规范化
-		value = value.replace(/\n{2,}(- )/g, "\n$1"); // 连续列表合并空行
-		value = value.replace(/-\s*《/g, "- 《"); // 中文书名号前空格
-		// 将行首可能有空格的 -文字 统一改成 - 空格文字
-		value = value.replace(/^\s*-(\S)/gm, "- $1");
+    // // 列表规范化
+    // value = value.replace(/^\s*-\s*(\S)/gm, "- $1");
 
-		// 4. 数字列表前后空格处理：1.**内容** -> 1. **内容**
-		value = value.replace(/(\d+)\.\s*\*{1,2}(.+?)\*{1,2}/g, "$1. **$2**");
-		// 1. ** 与中文书名号《之间加空格
-		value = value.replace(/\*\*《/g, "** 《");
+    // // 替换转义的中括号
+    // value = value.replaceAll("\\[", "$$$$");
+    // value = value.replaceAll("\\]", "$$$$");
 
-		// 2. 中文右括号 ) 与 ** 之间加空格
-		value = value.replace(/）\*\*/g, "） **");
-		// 中文右括号与 ** 之间去掉空格
-		value = value.replace(/）\s+\*\*/g, "）**");
-		// 确保加粗符号与中文标点不紧贴
-		value = value.replace(/([^\*])(\*\*.+?\*\*)([。！？，])/g, "$2$3");
-
-		// 5. LaTeX 公式处理
-		value = value.replace(/\\\( *(.*?) *\\\)/g, "$$$1$$");
-		value = value.replace(/\\\[ *(.*?) *\\\]/g, "$$$$$1$$$$");
-		value = value.replaceAll("\\[", "$$$$");
-		value = value.replaceAll("\\]", "$$$$");
-		// 去掉 ** 与 《 之间多余空格
-		value = value.replace(/\*\*\s+《/g, "**《");
-
-		// 6. 思考过程处理
 		value = value.replace(
 			/<think>([\s\S]*?)(?=<\/think>|$)/g,
 			(match: string, content: string) => {
-				const processedContent: string = content
+				const processedContent = content
 					.split("\n")
-					.map((line) => (line.trim() ? ">" + line : line))
-					.join("\n")
-					.replace(/(\r?\n)+/g, "\n>\n");
-				return ">Thinking..." + processedContent;
+					.filter((line) => line.trim() !== "")
+					.join("<br>");
+				return `<blockquote class="thinking-block">Thinking...<br>${processedContent}</blockquote>`;
 			}
 		);
 		value = value.replaceAll("</think>", "");
-
 		return mdi.render(value);
 	}
-
 	return value;
 });
 
@@ -282,18 +218,10 @@ onUnmounted(() => {
 				<!-- 太阳石矿山大模型提示 -->
 				<div
 					v-if="!inversion && showSolstoneTip"
-					class="mt-2 text-xs text-gray-500 text-right opacity-80"
+					class="mt-2 text-xs text-gray-500 text-left opacity-80"
 				>
-					此回答由太阳石矿山大模型生成，请仔细甄别。
+					<em>此回答由太阳石矿山大模型生成，请仔细甄别。</em>
 				</div>
-				<!-- 太阳石矿山大模型提示 -->
-				<!-- <div
-					v-if="!inversion && showSolstoneTip"
-					class="mt-2 flex items-center text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 shadow-sm"
-				>
-					<span class="mr-1 text-yellow-500">⚠️</span>
-					<span>此回答由太阳石矿山大模型生成，请仔细甄别。</span>
-				</div> -->
 			</div>
 			<whisperText
 				v-else-if="text == 'whisper' && chat.opt?.lkey"

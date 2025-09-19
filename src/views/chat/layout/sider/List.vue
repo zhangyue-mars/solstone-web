@@ -85,10 +85,10 @@ watch(()=>gptConfigStore.myData , toMyuid , {deep:true})
             :class="isActive(item.uuid) && ['check-chat-item']"
             @click="handleSelect(item)"
           >
-             
+
              <AiListText   :myObj="isInObjs(item.uuid)" :myItem="item" :index="index">
                <NInput
-               style="width: 226px"
+               style="width: calc(100% - 8px); margin-right: 8px;"
                 v-if="item.isEdit"
                 v-model:value="item.title" size="small"
                 @keypress="handleEnter(item, false, $event)"

@@ -409,14 +409,13 @@ export default {
 		up4: "高清4倍",
 
 		thinking: "思考中...",
-		noReUpload: "不能重复上传",
-		uploading: "上传中...",
-		uploadSuccess: "上传成功",
-		uploadFail: "上传失败:",
-		upPdf:
-			"<span>上传图片、附件<br/>能上传图片、PDF、EXCEL等文档</span><p>支持拖拽</p>",
-		upImg:
-			'<span><b>上传图片</b><br/>注意：会有额外的图片费用<br/>格式: jpeg jpg png gif</span><p>支持拖拽</p>',
+		"noReUpload": "不能重复上传",
+		"uploading": "上传中...",
+		"uploadSuccess": "上传成功",
+		"uploadFail": "上传失败:",
+		"attachmentPresentWarning": "存在附件时无法启用深度思考模式",
+		"upPdf": "<span>上传图片或附件<br/>可以上上传图片、PDF、EXCEL等文档</span><p>支持拖拽</p>",
+		"upImg": "<span><b>上传图片</b><br/>将自动调用 qwen/qwen2.5-vl-72b-instruct 模型<br/>格式：jpeg、jpg、png、gif</span><p>支持拖拽</p>",
 		clearAll: "清参数",
 		czoom: "自定义",
 		customTitle: "自定义变焦",
@@ -426,7 +425,7 @@ export default {
 		setingSuccess: "设置成功",
 
 		tokenInfo1:
-			"剩余Tokens = 模型长度 - 角色设定 - 上下文(会话历史) - 回复数 - 当前输入",
+			"剩余Tokens = 模型最大Tokens容量 - 角色设定 - 上下文(会话历史) - 回复数 - 当前输入",
 		tokenInfo2: "角色设定留空，系统会给一个默认的",
 		noSuppertModel: "刷新，暂不支持此模型！",
 		failOcr: "识别失败",

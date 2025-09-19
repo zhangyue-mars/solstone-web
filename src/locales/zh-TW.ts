@@ -127,6 +127,7 @@ export default {
     "uploading": "上傳中...",
     "uploadSuccess": "上傳成功",
     "uploadFail": "上傳失敗:",
+    "attachmentPresentWarning": "存在附件時無法啟用深度思考模式",
     "upPdf": "<span>上傳圖片或附件<br/>可以上傳圖片、PDF、EXCEL等文檔</span><p>支持拖放</p>",
     "upImg": "<span><b>上傳圖片</b><br/>將自動調用 gpt-4-vision-preview 模型<br>注意：可能會有額外的圖片費用<br/>格式：jpeg、jpg、png、gif</span><p>支持拖放</p> <p class=\"pt-2\"><b>上傳MP3 MP4</b> <br>將自動直接調用 whisper-1 模型<br>格式：mp3、mp4、mpeg、mpga、m4a、wav、webm</p>",
     "clearAll": "清參數",
@@ -363,39 +364,37 @@ export default {
 		},
 	}
   ,suno:{
-    description:"描述模式"
-    ,custom:"定制模式"
-    ,style:'歌曲风格'
-    ,stylepls:'歌曲名称比如:流行音乐'
-    ,emputy:'暂无内容'
-    ,noly:'无歌词'
-    ,inputly:'请输入歌曲名称或歌词'
-    ,doingly:"正在执行请稍后."
-    ,doingly2: "正在获取歌词..."
-    ,title:'歌曲名称'
-    ,titlepls:'歌曲名称比如:假期'
-    ,desc:'歌曲描述'
-    ,descpls:'歌曲描述 比如:关于假期的原声流行音乐'
-    ,noneedly:'无需歌词'
-    ,rank:'随机获取'
-    ,ly:'歌词'
-    ,lypls:'歌词:有一定的格式'
-    ,generate:'创作歌曲'
-    ,generately:'生成歌词'
-    ,nodata:'请先创作才有歌曲列表'
-
-    ,menu:'音乐'
-    ,menuinfo:'Suno 音乐创作'
-    ,server:'Suno 接口地址'
-    ,serverabout:'Suno 相关'
-    ,setOpenKeyPlaceholder:'Suno API 的相关KEY；可不填'
-
-    ,upMps:'上传音频'
-    ,extend:'延伸'
-    ,extendFrom:'延伸于'
-    ,extendAt:'延伸开始于'
-    ,fail:'失败'
-    ,info:'说明:<br>上传音频时长必须在6s-60s内'
+    description:"描述模式",
+    custom:"定制模式",
+    style:'歌曲风格',
+    stylepls:'歌曲名称比如:流行音乐',
+    emputy:'暂无内容',
+    noly:'无歌词',
+    inputly:'请输入歌曲名称或歌词',
+    doingly:"正在执行请稍后.",
+    doingly2: "正在获取歌词...",
+    title:'歌曲名称',
+    titlepls:'歌曲名称比如:假期',
+    desc:'歌曲描述',
+    descpls:'歌曲描述 比如:关于假期的原声流行音乐',
+    noneedly:'无需歌词',
+    rank:'随机获取',
+    ly:'歌词',
+    lypls:'歌词:有一定的格式',
+    generate:'创作歌曲',
+    generately:'生成歌词',
+    nodata:'请先创作才有歌曲列表',
+		menu:'音乐',
+    menuinfo:'Suno 音乐创作',
+    server:'Suno 接口地址',
+    serverabout:'Suno 相关',
+    setOpenKeyPlaceholder:'Suno API 的相关KEY；可不填',
+    upMps:'上传音频',
+    extend:'延伸',
+    extendFrom:'延伸于',
+    extendAt:'延伸开始于',
+    fail:'失败',
+    info:'说明:<br>上传音频时长必须在6s-60s内'
   }
   ,video:{
     menu:"视频",

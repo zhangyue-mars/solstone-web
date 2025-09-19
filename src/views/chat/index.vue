@@ -46,7 +46,9 @@ const { updateChat, updateChatSome } = useChat();
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll();
 
 // 添加TokenDisplay组件的引用
-const tokenDisplayRef = ref(null);
+const tokenDisplayRef = ref<{
+  updateUserBalance: () => Promise<void>
+} | null>(null);
 
 const { uuid } = route.params as { uuid: string };
 
@@ -234,15 +236,11 @@ function handleDelete(index: number) {
 function handleClear() {
 	if (loading.value) return;
 
-	dialog.warning({
-		title: t("chat.clearChat"),
-		content: t("chat.clearChatConfirm"),
-		positiveText: t("common.yes"),
-		negativeText: t("common.no"),
-		onPositiveClick: () => {
-			chatStore.clearChatByUuid(+uuid);
-		},
-	});
+	// 直接清空聊天记录
+	chatStore.clearChatByUuid(+uuid);
+	
+	// 显示清空成功提示
+	ms.success(t("common.clearSuccess"));
 }
 
 function handleEnter(event: KeyboardEvent) {
@@ -344,25 +342,31 @@ watch(
 	}
 );
 
-// 添加对聊天记录变化的监听，当聊天记录发生变化时更新TokenDisplay
+// 移除这个可能导致在AI回答过程中更新tokens的监听器
+// 添加对loading状态的监听，只在AI回答完全结束后更新TokenDisplay
 watch(
-	() => dataSources.value.length,
-	() => {
-		if (!loading.value && dataSources.value.length > 0) {
+	() => loading.value,
+	(newLoading) => {
+		// 当loading状态从true变为false时，表示AI回答结束
+		if (!newLoading) {
 			// AI回答完成后，更新TokenDisplay中的用户余额
 			setTimeout(() => {
 				tokenDisplayRef.value?.updateUserBalance();
 			}, 100);
 		}
+		
+		// 同步更新homeStore中的isLoader状态
+		homeStore.setMyData({ isLoader: newLoading });
 	}
 );
 
 const st = ref({ inputme: true });
 
-watch(
-	() => loading.value,
-	(n) => homeStore.setMyData({ isLoader: n })
-);
+// 移除重复的监听器，避免冲突
+// watch(
+// 	() => loading.value,
+// 	(n) => homeStore.setMyData({ isLoader: n })
+// );
 
 const ychat = computed(() => {
 	let text = prompt.value;

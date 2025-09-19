@@ -305,6 +305,7 @@ export const subModel = async (opt: subModelType) => {
 		let answerContent = "";
 		let isAnswerStarted = false;
 		let hasShownThinkingHeader = false;
+		let inThinkingBlock = false;
 
 		await fetchSSE(gptGetUrl(url), {
 			method: "POST",
@@ -313,6 +314,7 @@ export const subModel = async (opt: subModelType) => {
 			onMessage: async (data: string, event?: string) => {
 				// 只有在启用深度思考功能时才使用新的事件处理逻辑
 				if (opt.enableThinking) {
+					console.log("2");
 					if (event === "thinking") {
 						// 逐步显示思考过程
 						if (!hasShownThinkingHeader) {
@@ -333,11 +335,11 @@ export const subModel = async (opt: subModelType) => {
 						isAnswerStarted = true;
 						// // 结束思考过程的显示
 						// if (hasShownThinkingHeader) {
-							opt.onMessage({
-								text: `\n</think>\n\n`,
-								isFinish: false,
+						opt.onMessage({
+							text: `\n</think>\n\n`,
+							isFinish: false,
 							isPartial: true,
-							});
+						});
 						// }
 					} else if (event === "answer") {
 						// Accumulate answer content
@@ -377,6 +379,33 @@ export const subModel = async (opt: subModelType) => {
 					}
 				} else {
 					// 未启用深度思考时，保持原有的处理逻辑
+					// 未启用深度思考，直接去掉所有 <think> 标签及其中内容
+
+
+					// 处理深度思考
+					if (!opt.enableThinking) {
+					// 	// 未启用深度思考时，忽略 <think> 块
+						data = data.replace(/<think>[\s\S]*?<\/think>/g, "");
+						if (data.includes("<think>")) {
+							inThinkingBlock = true;
+							console.log("1");
+							return; // 不显示
+						}
+						if (data.includes("</think>")) {
+							inThinkingBlock = false;
+							console.log("2");
+							return; // 不显示
+						}
+						if (inThinkingBlock) {
+							console.log("3");
+							return; // 块内内容不显示
+						}
+					}
+					// if (data === "[DONE]") {
+					// 	opt.onMessage({ text: "", isFinish: true });
+					// } else {
+					// 	opt.onMessage({ text: data, isFinish: false, isPartial: true });
+					// }
 					if (data == "[DONE]") opt.onMessage({ text: "", isFinish: true });
 					else {
 						try {

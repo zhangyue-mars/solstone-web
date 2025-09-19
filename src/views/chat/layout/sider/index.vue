@@ -1,14 +1,14 @@
 <script setup lang='ts'>
-import { computed,defineAsyncComponent , onMounted} from "vue";
+import { computed, defineAsyncComponent, onMounted } from "vue";
 import { ref, watch } from 'vue'
 import { NButton, NLayoutSider, useDialog } from 'naive-ui'
 import List from './List.vue'
 import Footer from './Footer.vue'
-import { useAppStore, useChatStore, homeStore } from '@/store'
+import { useAppStore, useChatStore, homeStore, useUserStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { PromptStore, SvgIcon } from '@/components/common'
 import { t } from '@/locales'
-import { defaultSetting,UserInfo } from '@/store/modules/user/helper'
+import { defaultSetting, UserInfo } from '@/store/modules/user/helper'
 import { getToken } from "@/store/modules/auth/helper";
 import { getUserInfo } from "@/api/user";
 
@@ -17,6 +17,7 @@ const Setting = defineAsyncComponent(() => import('@/components/common/Setting/i
 
 const appStore = useAppStore()
 const chatStore = useChatStore()
+const userStore = useUserStore()
 const dialog = useDialog()
 
 const { isMobile } = useBasicLayout()
@@ -27,7 +28,10 @@ const collapsed = computed(() => appStore.siderCollapsed)
 
 
 onMounted(() => {
-  getLoginUserInfo();
+  // 使用 store 中的用户信息，避免重复请求
+  if (getToken() && !userStore.userInfo.userName) {
+    getLoginUserInfo();
+  }
 });
 
 function handleAdd() {
@@ -102,7 +106,7 @@ watch(
 )
 
 
-const userInfo = ref<UserInfo>(defaultSetting().userInfo)
+const userInfo = computed(() => userStore.userInfo)
 const st= ref({'show':false,showImg:false, menu:[],active:'chat'})
 
 const isLogin =computed(  () => {
@@ -120,13 +124,16 @@ const isLogin =computed(  () => {
   }
   const newUserInfo = await getUserInfo();
   if(newUserInfo){
-    if(newUserInfo.data.user.avatar){
-      userInfo.value.avatar = newUserInfo.data.user.avatar;
-    }
-    userInfo.value.name = newUserInfo.data.user.nickName;
-    userInfo.value.userBalance = newUserInfo.data.user.userBalance;
-    userInfo.value.userName = newUserInfo.data.user.userName;
-    isLogin.value = true
+    // 更新用户存储中的信息
+    userStore.updateUserInfo({
+      avatar: newUserInfo.data.user.avatar,
+      name: newUserInfo.data.user.nickName,
+      userBalance: newUserInfo.data.user.userBalance,
+      userName: newUserInfo.data.user.userName,
+      userId: newUserInfo.data.user.userId,
+      roleName: newUserInfo.data.user.roles && newUserInfo.data.user.roles.length > 0 ? newUserInfo.data.user.roles[0].roleName : '',
+      createTime: newUserInfo.data.user.createTime
+    })
   }
 }
 
