@@ -300,12 +300,13 @@ export const subModel = async (opt: subModelType) => {
 	headers = { ...headers, ...getHeaderAuthorization() };
 	try {
 		let url = "/chat/send";
-		// 只有在启用深度思考时才初始化这些变量
+		// 初始化状态变量
 		let thinkingContent = "";
 		let answerContent = "";
 		let isAnswerStarted = false;
 		let hasShownThinkingHeader = false;
 		let inThinkingBlock = false;
+		let lastEventType = ""; // 记录上一个事件类型
 
 		await fetchSSE(gptGetUrl(url), {
 			method: "POST",
@@ -314,12 +315,16 @@ export const subModel = async (opt: subModelType) => {
 			onMessage: async (data: string, event?: string) => {
 				// 只有在启用深度思考功能时才使用新的事件处理逻辑
 				if (opt.enableThinking) {
-					console.log("2");
+					// 更新 lastEventType
+					if (event) {
+						lastEventType = event;
+					}
+
 					if (event === "thinking") {
 						// 逐步显示思考过程
 						if (!hasShownThinkingHeader) {
 							opt.onMessage({
-								text: `<think>\n`,
+								text: `--- 深度思考 ---\n`,
 								isFinish: false,
 							});
 							hasShownThinkingHeader = true;
@@ -333,14 +338,14 @@ export const subModel = async (opt: subModelType) => {
 					} else if (event === "answer-header") {
 						// Start of formal answer
 						isAnswerStarted = true;
-						// // 结束思考过程的显示
-						// if (hasShownThinkingHeader) {
-						opt.onMessage({
-							text: `\n</think>\n\n`,
-							isFinish: false,
-							isPartial: true,
-						});
-						// }
+						// 结束思考过程的显示
+						if (hasShownThinkingHeader) {
+							opt.onMessage({
+								text: `\n\n`,
+								isFinish: false,
+								isPartial: true,
+							});
+						}
 					} else if (event === "answer") {
 						// Accumulate answer content
 						if (isAnswerStarted) {
@@ -348,28 +353,75 @@ export const subModel = async (opt: subModelType) => {
 							opt.onMessage({ text: data, isFinish: false, isPartial: true });
 						}
 					} else if (data === "[DONE]") {
+						// Check if there's any remaining thinking content that hasn't been shown
+						if (thinkingContent && !isAnswerStarted) {
+							// If we have thinking content but no answer started, show the thinking content
+							if (!hasShownThinkingHeader) {
+								opt.onMessage({
+									text: `--- 深度思考 ---\n`,
+									isFinish: false,
+								});
+								hasShownThinkingHeader = true;
+							}
+							opt.onMessage({ text: thinkingContent, isFinish: false });
+						}
+						
 						// Reset all state variables
 						thinkingContent = "";
 						answerContent = "";
 						isAnswerStarted = false;
 						hasShownThinkingHeader = false;
+						lastEventType = "";
 						// Finalize response
 						opt.onMessage({ text: "", isFinish: true });
 					} else {
 						// 保持原有的处理逻辑以确保向后兼容
-						if (data == "[DONE]") opt.onMessage({ text: "", isFinish: true });
-						else {
+						if (data == "[DONE]") {
+							// 处理完成事件
+							opt.onMessage({ text: "", isFinish: true });
+						} else {
 							try {
-								// TODO 思考处理，DeepSeek  API 字段reasoning_content ，本地部署标签<think>
+								// 处理常规数据
 								const obj = JSON.parse(data);
-								opt.onMessage({
-									text:
-										obj.choices[0].delta?.content ??
-										obj.choices[0].delta?.reasoning_content ??
-										"",
-									isFinish: obj.choices[0].finish_reason != null,
-								});
+								const content = obj.choices[0].delta?.content ?? "";
+								const reasoningContent = obj.choices[0].delta?.reasoning_content ?? "";
+								
+								// 如果有reasoning_content，添加到thinkingContent
+								if (reasoningContent) {
+									thinkingContent += reasoningContent;
+									// 如果还没有显示过思考头部，先显示
+									if (!hasShownThinkingHeader) {
+										opt.onMessage({
+											text: `--- 深度思考 ---\n`,
+											isFinish: false,
+										});
+										hasShownThinkingHeader = true;
+									}
+									// 发送新增的思考内容
+									opt.onMessage({
+										text: reasoningContent,
+										isFinish: false,
+										isPartial: true,
+									});
+								}
+								
+								// 如果有常规内容，发送它
+								if (content) {
+									// 如果刚开始正式回答，先结束思考部分
+									if (!isAnswerStarted && hasShownThinkingHeader) {
+										opt.onMessage({
+											text: `\n\n`,
+											isFinish: false,
+										});
+										isAnswerStarted = true;
+									}
+									opt.onMessage({
+										text: content,
+										isFinish: obj.choices[0].finish_reason != null,
+									});
+								}
 							} catch {
+								// 处理非JSON数据
 								opt.onMessage({
 									text: data,
 									isFinish: false,
@@ -379,46 +431,51 @@ export const subModel = async (opt: subModelType) => {
 					}
 				} else {
 					// 未启用深度思考时，保持原有的处理逻辑
-					// 未启用深度思考，直接去掉所有 <think> 标签及其中内容
-
-
-					// 处理深度思考
-					if (!opt.enableThinking) {
-					// 	// 未启用深度思考时，忽略 <think> 块
-						data = data.replace(/<think>[\s\S]*?<\/think>/g, "");
-						if (data.includes("<think>")) {
-							inThinkingBlock = true;
-							console.log("1");
-							return; // 不显示
+					// 处理<think>标签
+					if (data.includes("<think>")) {
+						inThinkingBlock = true;
+						// 移除<think>标签并显示之前的内容（如果有）
+						const beforeThinking = data.split("<think>")[0];
+						if (beforeThinking) {
+							opt.onMessage({ text: beforeThinking, isFinish: false });
 						}
-						if (data.includes("</think>")) {
-							inThinkingBlock = false;
-							console.log("2");
-							return; // 不显示
-						}
-						if (inThinkingBlock) {
-							console.log("3");
-							return; // 块内内容不显示
-						}
+						return;
 					}
-					// if (data === "[DONE]") {
-					// 	opt.onMessage({ text: "", isFinish: true });
-					// } else {
-					// 	opt.onMessage({ text: data, isFinish: false, isPartial: true });
-					// }
-					if (data == "[DONE]") opt.onMessage({ text: "", isFinish: true });
-					else {
+					
+					if (data.includes("</think>")) {
+						inThinkingBlock = false;
+						// 移除</think>标签并显示之后的内容（如果有）
+						const afterThinking = data.split("</think>")[1];
+						if (afterThinking) {
+							opt.onMessage({ text: afterThinking, isFinish: false });
+						}
+						return;
+					}
+					
+					if (inThinkingBlock) {
+						// 忽略思考块中的内容
+						return;
+					}
+					
+					// 处理常规内容
+					if (data == "[DONE]") {
+						opt.onMessage({ text: "", isFinish: true });
+					} else {
 						try {
-							// TODO 思考处理，DeepSeek  API 字段reasoning_content ，本地部署标签<think>
+							// 处理JSON格式数据
 							const obj = JSON.parse(data);
-							opt.onMessage({
-								text:
-									obj.choices[0].delta?.content ??
-									obj.choices[0].delta?.reasoning_content ??
-									"",
-								isFinish: obj.choices[0].finish_reason != null,
-							});
+							const content = obj.choices[0].delta?.content ?? "";
+							const reasoningContent = obj.choices[0].delta?.reasoning_content ?? "";
+							
+							// 在非深度思考模式下忽略reasoning_content
+							if (content) {
+								opt.onMessage({
+									text: content,
+									isFinish: obj.choices[0].finish_reason != null,
+								});
+							}
 						} catch {
+							// 处理非JSON数据
 							opt.onMessage({
 								text: data,
 								isFinish: false,

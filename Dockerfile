@@ -1,56 +1,34 @@
-# build front-end
-FROM node:lts-alpine AS frontend
+# 第一阶段：node镜像打包
+FROM node:latest AS frontend-builder
+WORKDIR /build-app
 
-RUN npm install pnpm -g
+# 安装 pnpm
+RUN npm install -g pnpm
 
-WORKDIR /app
+# 复制依赖描述文件（建议单独 COPY）
+COPY pnpm-lock.yaml ./
+COPY package.json ./
 
-COPY ./package.json /app
-
-COPY ./pnpm-lock.yaml /app
-
+# 安装依赖
 RUN pnpm install
 
-COPY . /app
+# 复制剩余代码
+COPY . .
 
+# 构建应用
 RUN pnpm run build
 
-# build backend
-FROM node:lts-alpine as backend
 
-RUN npm install pnpm -g
-
+# 第二阶段：nginx打包
+FROM nginx:latest
+EXPOSE 80
 WORKDIR /app
+# 替换nginx配置
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+# 将第一阶段的静态文件复制到nginx中
+RUN rm -rf /usr/share/nginx/html
+RUN mkdir /usr/share/nginx/html
+COPY --from=frontend-builder /build-app/dist /usr/share/nginx/html
 
-COPY /service/package.json /app
-
-COPY /service/pnpm-lock.yaml /app
-
-RUN pnpm install
-
-COPY /service /app
-
-RUN pnpm build
-
-# service
-FROM node:lts-alpine
-
-RUN npm install pnpm -g
-
-WORKDIR /app
-
-COPY /service/package.json /app
-
-COPY /service/pnpm-lock.yaml /app
-
-RUN pnpm install --production && rm -rf /root/.npm /root/.pnpm-store /usr/local/share/.cache /tmp/*
-
-COPY /service /app
-
-COPY --from=frontend /app/dist /app/public
-
-COPY --from=backend /app/build /app/build
-
-EXPOSE 3002
-
-CMD ["pnpm", "run", "prod"]
+# 运行
+CMD ["nginx", "-g", "daemon off;"]
