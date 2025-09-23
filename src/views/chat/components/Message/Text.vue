@@ -83,24 +83,24 @@ const text = computed(() => {
 		// value = value.replace(/^\s*-(\S)/gm, "- $1");
 		// // value = value.replace(/^(#{1,6})([^\s#])/gm, "$1 $2");
 		// value = value.replace(/^\*{3}([^\*])/gm, "* **$1");
-		// // LaTeX 公式处理
-    // value = value.replace(/\\\( *(.*?) *\\\)/g, "$$$1$$");
-    // value = value.replace(/\\\((.*?)\\\)/g, "$$$1$$");
-    // value = value.replace(/\\\[ *(.*?) *\\\]/g, "$$$$$1$$$$");
+		// LaTeX 公式处理
+		value = value.replace(/\\\( *(.*?) *\\\)/g, "$$$1$$");
+		value = value.replace(/\\\((.*?)\\\)/g, "$$$1$$");
+		value = value.replace(/\\\[ *(.*?) *\\\]/g, "$$$$$1$$$$");
 
-    // // 标题加空格，并处理两颗星号加粗
-    // value = value.replace(/(#+)\s*\*{1,2}(.+?)\*{1,2}/g, "$1 **$2**");
-    // value = value.replace(/^(#{1,6})([^\s#])/gm, "$1 $2");
+		// 标题加空格，并处理两颗星号加粗
+		value = value.replace(/(#+)\s*\*{1,2}(.+?)\*{1,2}/g, "$1 **$2**");
+		value = value.replace(/^(#{1,6})([^\s#])/gm, "$1 $2");
 
-    // // 三颗星号转成加粗（去掉斜体效果）
-    // value = value.replace(/\*{3}([^\*]+)\*{2,3}/g, "**$1**");
+		// 三颗星号转成加粗（去掉斜体效果）
+		value = value.replace(/\*{3}([^\*]+)\*{2,3}/g, "**$1**");
 
-    // // 列表规范化
-    // value = value.replace(/^\s*-\s*(\S)/gm, "- $1");
+		// 列表规范化
+		value = value.replace(/^\s*-\s*(\S)/gm, "- $1");
 
-    // // 替换转义的中括号
-    // value = value.replaceAll("\\[", "$$$$");
-    // value = value.replaceAll("\\]", "$$$$");
+		// 替换转义的中括号
+		value = value.replaceAll("\\[", "$$$$");
+		value = value.replaceAll("\\]", "$$$$");
 
 		value = value.replace(
 			/<think>([\s\S]*?)(?=<\/think>|$)/g,

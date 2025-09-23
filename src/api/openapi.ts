@@ -256,6 +256,13 @@ export const getSystemMessage = (uuid?: number) => {
 	return DEFAULT_SYSTEM_TEMPLATE;
 };
 
+function safeText(text: any): string {
+  if (text == null) return ""; // 过滤 null/undefined
+  if (typeof text !== "string") return String(text);
+  // 移除独立/结尾的 null 或 undefined
+  return text.replace(/\s*(?:null|undefined)\s*$/gi, "");
+}
+
 export const subModel = async (opt: subModelType) => {
 	console.log("subModel1", opt);
 
@@ -295,7 +302,7 @@ export const subModel = async (opt: subModelType) => {
 	let headers = {
 		"Content-Type": "application/json;charset=UTF-8",
 		Authorization: "Bearer " + getToken(),
-		Accept: "text/event-stream ",
+		Accept: "text/event-stream",
 	};
 	headers = { ...headers, ...getHeaderAuthorization() };
 	try {
@@ -319,19 +326,20 @@ export const subModel = async (opt: subModelType) => {
 					if (event) {
 						lastEventType = event;
 					}
+					console.log("subModel3",data,event);
 
-					if (event === "thinking") {
+					if (event === "thinking" || event === undefined) {
 						// 逐步显示思考过程
 						if (!hasShownThinkingHeader) {
 							opt.onMessage({
-								text: `--- 深度思考 ---\n`,
+								text: `<think>\n`,
 								isFinish: false,
 							});
 							hasShownThinkingHeader = true;
 						}
 						// 发送新增的思考内容
 						opt.onMessage({
-							text: data,
+							text: safeText(data),
 							isFinish: false,
 							isPartial: true,
 						});
@@ -346,11 +354,11 @@ export const subModel = async (opt: subModelType) => {
 								isPartial: true,
 							});
 						}
-					} else if (event === "answer") {
+					} else if (event === "answer" || event === undefined) {
 						// Accumulate answer content
 						if (isAnswerStarted) {
 							// Send only the new content, not the entire accumulated content
-							opt.onMessage({ text: data, isFinish: false, isPartial: true });
+							opt.onMessage({ text: safeText(data), isFinish: false, isPartial: true });
 						}
 					} else if (data === "[DONE]") {
 						// Check if there's any remaining thinking content that hasn't been shown
@@ -358,7 +366,7 @@ export const subModel = async (opt: subModelType) => {
 							// If we have thinking content but no answer started, show the thinking content
 							if (!hasShownThinkingHeader) {
 								opt.onMessage({
-									text: `--- 深度思考 ---\n`,
+									text: `</think>\n`,
 									isFinish: false,
 								});
 								hasShownThinkingHeader = true;
@@ -416,14 +424,14 @@ export const subModel = async (opt: subModelType) => {
 										isAnswerStarted = true;
 									}
 									opt.onMessage({
-										text: content,
+										text: safeText(content),
 										isFinish: obj.choices[0].finish_reason != null,
 									});
 								}
 							} catch {
 								// 处理非JSON数据
 								opt.onMessage({
-									text: data,
+									text: safeText(data),
 									isFinish: false,
 								});
 							}
@@ -470,14 +478,14 @@ export const subModel = async (opt: subModelType) => {
 							// 在非深度思考模式下忽略reasoning_content
 							if (content) {
 								opt.onMessage({
-									text: content,
+									text: safeText(content),
 									isFinish: obj.choices[0].finish_reason != null,
 								});
 							}
 						} catch {
 							// 处理非JSON数据
 							opt.onMessage({
-								text: data,
+								text: safeText(data),
 								isFinish: false,
 							});
 						}
