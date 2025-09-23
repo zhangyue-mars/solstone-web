@@ -13,7 +13,6 @@ import { t } from "@/locales";
 import { ChatMessage } from "gpt-tokenizer/esm/GptEncoding";
 import { chatSetting } from "./chat";
 import { getToken } from "@/store/modules/auth/helper";
-
 const getUrl = (url: string) => {
 	if (url.indexOf("http") == 0) return url;
 	if (gptServerStore.myData.OPENAI_API_BASE_URL) {
@@ -29,7 +28,6 @@ export const gptFetch = (url: string, data?: any, opt2?: any) => {
 		Authorization: "Bearer " + getToken(),
 	};
 	if (opt2 && opt2.headers) headers = opt2.headers;
-
 	headers = { ...headers, ...getHeaderAuthorization() };
 	return new Promise<any>((resolve, reject) => {
 		let opt: RequestInit = { method: "GET" };
@@ -68,6 +66,7 @@ function uploadR2(file: File) {
 					const signedUrl = response.data.data.up;
 					//上传
 					fetch(signedUrl, {
+
 						method: "PUT",
 						body: file,
 						headers: {
@@ -92,14 +91,12 @@ function uploadR2(file: File) {
 			.catch((error) => reject(error));
 	});
 }
-
 export const GptUploader = (_url: string, FormData: FormData) => {
 	//R2上传
 	const upLoaderR2 = () => {
 		const file = FormData.get("file") as File;
 		return uploadR2(file);
 	};
-
 	//执行上传
 	const uploadNomalDo = (url: string, headers: any) => {
 		return new Promise<any>((resolve, reject) => {
@@ -111,7 +108,6 @@ export const GptUploader = (_url: string, FormData: FormData) => {
 				.catch((error) => reject(error));
 		});
 	};
-
 	//除R2外默认流程
 	const uploadNomal = (url: string) => {
 		url = gptServerStore.myData.UPLOADER_URL
@@ -132,12 +128,12 @@ export const GptUploader = (_url: string, FormData: FormData) => {
 		}
 		return uploadNomalDo(url, headers);
 	};
-
 	//处理上传流程
 	const uploadType = (
 		(homeStore.myData.session.uploadType ?? "") as string
 	).toLocaleLowerCase();
 	let headers = { "Content-Type": "multipart/form-data" };
+
 	//R2
 	if (uploadType == "r2") {
 		return upLoaderR2();
@@ -150,25 +146,21 @@ export const GptUploader = (_url: string, FormData: FormData) => {
 		}
 		let url = `/openapi${_url}`;
 		return uploadNomalDo(url, headers);
-
 		//前端API
 	} else if (uploadType == "api") {
 		headers = { ...headers, ...getHeaderAuthorization() };
 		let url = `${gptServerStore.myData.OPENAI_API_BASE_URL}${_url}`;
 		return uploadNomalDo(url, headers);
-
 		//自定义链接
 	} else if (uploadType == "myurl") {
 		return uploadNomalDo(_url, headers);
 	}
-
 	//默认上传流程
 	if (homeStore.myData.session.isUploadR2) {
 		return upLoaderR2();
 	}
 	return uploadNomal(_url);
 };
-
 export const whisperUpload = (FormData: FormData) => {
 	const url = gptGetUrl("/chat/audio");
 	let headers = {
@@ -185,7 +177,6 @@ export const whisperUpload = (FormData: FormData) => {
 			.catch((error) => reject(error));
 	});
 };
-
 export const subGPT = async (data: any, chat: Chat.Chat) => {
 	let d: any;
 	let action = data.action;
@@ -193,7 +184,6 @@ export const subGPT = async (data: any, chat: Chat.Chat) => {
 	if (action == "gpt.dall-e-3") {
 		//执行变化
 		// chat.model= 'dall-e-3';
-
 		let d = await gptFetch("/dall3", data.data);
 		try {
 			const rz: any = d.data[0];
@@ -208,8 +198,8 @@ export const subGPT = async (data: any, chat: Chat.Chat) => {
 			homeStore.setMyData({ act: "updateChat", actData: chat });
 		}
 	}
-};
 
+};
 interface subModelType {
 	kid: string;
 	message: any[];
@@ -238,7 +228,6 @@ function getHeaderAuthorization() {
 		Authorization: "Bearer " + getToken(),
 	};
 }
-
 export const getSystemMessage = (uuid?: number) => {
 	//KnowledgeCutOffDate
 	let sysTem = gptConfigStore.myData.systemMessage;
@@ -251,21 +240,12 @@ export const getSystemMessage = (uuid?: number) => {
 	let producer =
 		"Please respond in concise and clear language, prioritizing Chinese.";
 	const DEFAULT_SYSTEM_TEMPLATE = `${producer}
-    Current model: ${model}
-    Current time: ${new Date().toLocaleString()}`;
+		Current model: ${model}
+		Current time: ${new Date().toLocaleString()}`;
 	return DEFAULT_SYSTEM_TEMPLATE;
 };
-
-function safeText(text: any): string {
-	if (text == null) return ""; // 过滤 null/undefined
-	if (typeof text !== "string") return String(text);
-	// 移除独立/结尾的 null 或 undefined
-	return text.replace(/\s*(?:null|undefined)\s*$/gi, "");
-}
-
 export const subModel = async (opt: subModelType) => {
-	// console.log("subModel1", opt);
-
+	console.log("subModel1", opt);
 	const model = opt.model ?? gptConfigStore.myData.model;
 	let max_tokens = gptConfigStore.myData.max_tokens;
 	let temperature = 0.5;
@@ -285,6 +265,7 @@ export const subModel = async (opt: subModelType) => {
 		max_tokens,
 		model,
 		temperature,
+
 		top_p,
 		presence_penalty,
 		frequency_penalty,
@@ -297,24 +278,20 @@ export const subModel = async (opt: subModelType) => {
 		autoSelectModel: opt.autoSelectModel,
 		enableThinking: opt.enableThinking ?? false,
 	};
-	// console.log("subModel2", body);
-
+	console.log("subModel2", body);
 	let headers = {
 		"Content-Type": "application/json;charset=UTF-8",
 		Authorization: "Bearer " + getToken(),
-		Accept: "text/event-stream",
+		Accept: "text/event-stream ",
 	};
 	headers = { ...headers, ...getHeaderAuthorization() };
 	try {
 		let url = "/chat/send";
-		// 初始化状态变量
+		// 只有在启用深度思考时才初始化这些变量
 		let thinkingContent = "";
 		let answerContent = "";
 		let isAnswerStarted = false;
 		let hasShownThinkingHeader = false;
-		let inThinkingBlock = false;
-		let lastEventType = ""; // 记录上一个事件类型
-
 		await fetchSSE(gptGetUrl(url), {
 			method: "POST",
 			headers: headers,
@@ -322,12 +299,6 @@ export const subModel = async (opt: subModelType) => {
 			onMessage: async (data: string, event?: string) => {
 				// 只有在启用深度思考功能时才使用新的事件处理逻辑
 				if (opt.enableThinking) {
-					// 更新 lastEventType
-					if (event) {
-						lastEventType = event;
-					}
-					// console.log("subModel3", data, event);
-
 					if (event === "thinking") {
 						// 逐步显示思考过程
 						if (!hasShownThinkingHeader) {
@@ -339,113 +310,53 @@ export const subModel = async (opt: subModelType) => {
 						}
 						// 发送新增的思考内容
 						opt.onMessage({
-							text: safeText(data),
+							text: data,
 							isFinish: false,
 							isPartial: true,
 						});
 					} else if (event === "answer-header") {
 						// Start of formal answer
 						isAnswerStarted = true;
-						// 结束思考过程的显示
-						if (hasShownThinkingHeader) {
+						// // 结束思考过程的显示
+						// if (hasShownThinkingHeader) {
 							opt.onMessage({
-								text: `</think>\n\n`,
+								text: `\n</think>\n\n`,
 								isFinish: false,
-								isPartial: true,
+							isPartial: true,
 							});
-						}
+						// }
 					} else if (event === "answer") {
 						// Accumulate answer content
-						if (!isAnswerStarted) {
-							// 如果 answer-event 来得比 answer-header 先，先结束思考块
-							if (hasShownThinkingHeader) {
-								opt.onMessage({
-									text: `</think>\n\n`,
-									isFinish: false,
-									isPartial: true,
-								});
-								hasShownThinkingHeader = false;
-							}
-							isAnswerStarted = true;
+						if (isAnswerStarted) {
+							// Send only the new content, not the entire accumulated content
+							opt.onMessage({ text: data, isFinish: false, isPartial: true });
 						}
-						opt.onMessage({
-							text: safeText(data),
-							isFinish: false,
-							isPartial: true,
-						});
 					} else if (data === "[DONE]") {
-						// Check if there's any remaining thinking content that hasn't been shown
-						if (thinkingContent && !isAnswerStarted) {
-							// If we have thinking content but no answer started, show the thinking content
-							if (!hasShownThinkingHeader) {
-								opt.onMessage({
-									text: `</think>\n`,
-									isFinish: false,
-								});
-								hasShownThinkingHeader = true;
-							}
-							opt.onMessage({ text: thinkingContent, isFinish: false });
-						}
-
 						// Reset all state variables
 						thinkingContent = "";
+
 						answerContent = "";
 						isAnswerStarted = false;
 						hasShownThinkingHeader = false;
-						lastEventType = "";
 						// Finalize response
 						opt.onMessage({ text: "", isFinish: true });
 					} else {
 						// 保持原有的处理逻辑以确保向后兼容
-						if (data == "[DONE]") {
-							// 处理完成事件
-							opt.onMessage({ text: "", isFinish: true });
-						} else {
+						if (data == "[DONE]") opt.onMessage({ text: "", isFinish: true });
+						else {
 							try {
-								// 处理常规数据
+								// TODO 思考处理，DeepSeek  API 字段reasoning_content ，本地部署标签<think>
 								const obj = JSON.parse(data);
-								const content = obj.choices[0].delta?.content ?? "";
-								const reasoningContent =
-									obj.choices[0].delta?.reasoning_content ?? "";
-
-								// 如果有reasoning_content，添加到thinkingContent
-								if (reasoningContent) {
-									thinkingContent += reasoningContent;
-									// 如果还没有显示过思考头部，先显示
-									if (!hasShownThinkingHeader) {
-										opt.onMessage({
-											text: `--- 深度思考 ---\n`,
-											isFinish: false,
-										});
-										hasShownThinkingHeader = true;
-									}
-									// 发送新增的思考内容
-									opt.onMessage({
-										text: reasoningContent,
-										isFinish: false,
-										isPartial: true,
-									});
-								}
-
-								// 如果有常规内容，发送它
-								if (content) {
-									// 如果刚开始正式回答，先结束思考部分
-									if (!isAnswerStarted && hasShownThinkingHeader) {
-										opt.onMessage({
-											text: `\n\n`,
-											isFinish: false,
-										});
-										isAnswerStarted = true;
-									}
-									opt.onMessage({
-										text: safeText(content),
-										isFinish: obj.choices[0].finish_reason != null,
-									});
-								}
-							} catch {
-								// 处理非JSON数据
 								opt.onMessage({
-									text: safeText(data),
+									text:
+										obj.choices[0].delta?.content ??
+										obj.choices[0].delta?.reasoning_content ??
+										"",
+									isFinish: obj.choices[0].finish_reason != null,
+								});
+							} catch {
+								opt.onMessage({
+									text: data,
 									isFinish: false,
 								});
 							}
@@ -453,51 +364,24 @@ export const subModel = async (opt: subModelType) => {
 					}
 				} else {
 					// 未启用深度思考时，保持原有的处理逻辑
-					// 处理<think>标签
-					if (data.includes("<think>")) {
-						inThinkingBlock = true;
-						// 移除<think>标签并显示之前的内容（如果有）
-						const beforeThinking = data.split("<think>")[0];
-						if (beforeThinking) {
-							opt.onMessage({ text: beforeThinking, isFinish: false });
-						}
-						return;
-					}
-
-					if (data.includes("</think>")) {
-						inThinkingBlock = false;
-						data = data.split("</think>")[1] ?? "";
-						// 移除</think>标签并显示之后的内容（如果有）
-						// const afterThinking = data.split("</think>")[1];
-						// if (afterThinking) {
-						// 	opt.onMessage({ text: afterThinking, isFinish: false });
-						// }
-						// return;
-					}
-
-					if (inThinkingBlock) {
-						// 忽略思考块中的内容
-						data = "";
-					}
-
-					// 处理常规内容
-					if (data && data !== "[DONE]") {
+					if (data == "[DONE]") opt.onMessage({ text: "", isFinish: true });
+					else {
 						try {
+							// TODO 思考处理，DeepSeek  API 字段reasoning_content ，本地部署标签<think>
 							const obj = JSON.parse(data);
-							const content = obj.choices[0].delta?.content ?? "";
-							if (content) {
-								opt.onMessage({
-									text: safeText(content),
-									isFinish: obj.choices[0].finish_reason != null,
-								});
-							}
+							opt.onMessage({
+								text:
+									obj.choices[0].delta?.content ??
+									obj.choices[0].delta?.reasoning_content ??
+									"",
+								isFinish: obj.choices[0].finish_reason != null,
+							});
 						} catch {
-							opt.onMessage({ text: safeText(data), isFinish: false });
+							opt.onMessage({
+								text: data,
+								isFinish: false,
+							});
 						}
-					}
-
-					if (data === "[DONE]") {
-						opt.onMessage({ text: "", isFinish: true });
 					}
 				}
 			},
@@ -513,7 +397,6 @@ export const subModel = async (opt: subModelType) => {
 		opt.onError && opt.onError(error);
 	}
 };
-
 export const getInitChat = (txt: string) => {
 	let promptMsg: Chat.Chat = {
 		dateTime: new Date().toLocaleString(),
@@ -521,11 +404,11 @@ export const getInitChat = (txt: string) => {
 		inversion: true,
 		error: false,
 		conversationOptions: null,
+
 		requestOptions: { prompt: txt, options: null },
 	};
 	return promptMsg;
 };
-
 export interface ttsType {
 	model: string;
 	input: string;
@@ -543,7 +426,6 @@ export const subTTS = async (tts: ttsType) => {
 		headers,
 		body: JSON.stringify(tts),
 	});
-
 	if (!response.ok) {
 		throw new Error(`API request failed with status ${response.status}`);
 	}
@@ -555,13 +437,11 @@ export const subTTS = async (tts: ttsType) => {
 	const pp = await bolbObj(blob);
 	return { blob, saveID, ...pp };
 };
-
 export const bolbObj = (blob: Blob) => {
 	return new Promise<{ player: HTMLAudioElement; duration: number }>(
 		(resolve, reject) => {
 			const player = new window.Audio();
 			player.src = URL.createObjectURL(blob);
-
 			player.addEventListener("loadedmetadata", () => {
 				mlog("时长", player.duration);
 				resolve({ player, duration: player.duration });
@@ -573,7 +453,6 @@ export const bolbObj = (blob: Blob) => {
 		}
 	);
 };
-
 function formatDate(): string[] {
 	const today = new Date();
 	const year = today.getFullYear();
@@ -585,19 +464,17 @@ function formatDate(): string[] {
 		.padStart(2, "0")}-${lastDay.getDate().toString().padStart(2, "0")}`;
 	return [formattedFirstDay, formattedLastDay];
 }
-
 //
-
 export const gptUsage = async () => {
 	// fetch(getUrl(url),  opt )
 	//     .then(d=>d.json().then(d=> resolve(d))
+
 	//     .catch(e=>reject(e)))
 	//     .catch(e=>reject(e))
 	const [startDate, endDate] = formatDate();
 	const urlUsage = `/v1/dashboard/billing/usage?start_date=${startDate}&end_date=${endDate}`;
 	const usageData = await gptFetch(urlUsage);
 	const billData = await gptFetch("/v1/dashboard/billing/subscription");
-
 	const usage = Math.round(usageData.total_usage) / 100;
 	mlog("gpt", usage, billData);
 	//remaining = subscriptionData.system_hard_limit_usd - totalUsage;
@@ -611,7 +488,6 @@ export const gptUsage = async () => {
 		hard_limit_usd: billData.hard_limit_usd,
 	};
 };
-
 export const openaiSetting = (q: any) => {
 	//mlog()
 	mlog("setting", q);
@@ -658,9 +534,9 @@ export const blurClean = () => {
 		"\\"
 	);
 };
-
 export const countTokens = async (
 	dataSources: Chat.Chat[],
+
 	input: string,
 	uuid: number
 ) => {
@@ -679,7 +555,6 @@ export const countTokens = async (
 	let unit = 1024;
 	rz.modelTokens = `${max}k`;
 	//cl100k_base.encode(input)
-
 	const encode = await encodeAsync();
 	rz.input = encode(input).length;
 	rz.system = encode(getSystemMessage()).length;
@@ -692,7 +567,6 @@ export const countTokens = async (
 					.length;
 	//
 	rz.remain = unit * max - rz.history - rz.planOuter - rz.input - rz.system;
-
 	return rz;
 };
 const getModelMax = (model: string) => {
@@ -719,13 +593,10 @@ const getModelMax = (model: string) => {
 		//options.maxResponseTokens = 4096
 		return 120;
 	}
-
 	return max;
 };
-
 export const encodeAsync = async () => {
 	const { encode } = await import("gpt-tokenizer");
-
 	return encode; //(str).length;
 };
 export const encodeChatAsync = async () => {
@@ -733,7 +604,6 @@ export const encodeChatAsync = async () => {
 
 	return encodeChat; //(obj,model ).length;
 };
-
 export const getHistoryMessage = async (
 	dataSources: Chat.Chat[],
 	loadingCnt = 1,
@@ -751,7 +621,6 @@ export const getHistoryMessage = async (
 		//let o of dataSources.value
 		if (i >= gptConfigStore.myData.talkCount) break;
 		i++;
-
 		let o = dataSources[ii];
 		//mlog('o',ii ,o);
 		let content = o.text || "";
@@ -762,16 +631,13 @@ export const getHistoryMessage = async (
 				let fileBase64 = JSON.parse(str) as string[];
 				let arr = fileBase64.filter((ff: string) => ff.indexOf("http") > -1);
 				if (arr.length > 0) content = arr.join(" ") + " " + content;
-
 				mlog(t("mjchat.attr"), o.opt.images[0], content);
 			} catch (ee) {}
 		}
-
 		// 确保content始终有定义，避免gpt-tokenizer报错
 		if (content === undefined || content === null) {
 			content = "";
 		}
-
 		//mlog('d',gptConfigStore.myData.talkCount ,i ,o.inversion , o.text);
 		rz.push({ content, role: !o.inversion ? "assistant" : "user" });
 	}
