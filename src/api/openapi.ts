@@ -402,7 +402,7 @@ export const subModel = async (opt: subModelType) => {
           if (event) {
             lastEventType = event;
           }
-          console.log("subModel3", data, event);
+          // console.log("subModel3", data, event);
 
           if (event === "thinking") {
             // 逐步显示思考过程

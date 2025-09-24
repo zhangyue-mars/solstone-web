@@ -37,6 +37,7 @@ export default {
 		placeholder: "可输入说点什么，也可贴截图或拖拽文件（Shift + Enter = 换行）",
 		placeholderMobile: "来说点什么...",
 		copy: "复制",
+		regenerate: "重新生成",
 		copied: "复制成功",
 		copyCode: "复制代码",
 		clearChat: "清空会话",
